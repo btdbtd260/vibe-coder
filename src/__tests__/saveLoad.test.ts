@@ -48,4 +48,25 @@ describe('save/load roundtrip', () => {
     expect(loaded.money).toBe(0);
     expect(loaded.vibeLevel).toBe(0);
   });
+
+  it('default loaded state includes version 1', () => {
+    const loaded = loadState(defaultState);
+    expect(loaded.version).toBe(1);
+  });
+
+  it('saved/loaded state preserves version 1', () => {
+    const mutated = { ...defaultState, lines: 50 };
+    saveState(mutated);
+    const loaded = loadState(defaultState);
+    expect(loaded.version).toBe(1);
+  });
+
+  it('old save with no version loads as version 1', () => {
+    const oldData = { lines: 100, money: 50 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(oldData));
+    const loaded = loadState(defaultState);
+    expect(loaded.version).toBe(1);
+    expect(loaded.lines).toBe(100);
+    expect(loaded.money).toBe(50);
+  });
 });

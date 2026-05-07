@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { GameState } from './types/game';
 import { defaultState } from './types/game';
-import { loadState, saveState, debouncedSave } from './hooks/useGameState';
+import { loadState, saveState, debouncedSave, getLastOfflineGains } from './hooks/useGameState';
+import type { OfflineGains } from './hooks/useGameState';
 import { useAutomation } from './hooks/useAutomation';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useSyncKeyHotkeys } from './hooks/useSyncKeyHotkeys';
@@ -23,6 +24,8 @@ import DevConsoleTab from './components/TabContent/DevConsoleTab';
 import SeniorOfficeTab from './components/TabContent/SeniorOfficeTab';
 import { useJuniorDevBot } from './hooks/useJuniorDevBot';
 import { useGameActions } from './hooks/useGameActions';
+import WelcomeBackOverlay from './components/WelcomeBackOverlay';
+import OnboardingOverlay from './components/OnboardingOverlay';
 
 const TAB_COMPONENTS: Record<string, React.FC<any>> = {
   terminal: TerminalTab,
@@ -38,7 +41,13 @@ const TAB_COMPONENTS: Record<string, React.FC<any>> = {
 };
 
 export default function App() {
-  const [state, setState] = useState<GameState>(() => loadState(defaultState));
+  const gainsRef = useRef<OfflineGains | null>(null);
+  const [dismissed, setDismissed] = useState(false);
+  const [state, setState] = useState<GameState>(() => {
+    const s = loadState(defaultState);
+    gainsRef.current = getLastOfflineGains();
+    return s;
+  });
   const [activeTab, setActiveTab] = useState('terminal');
   const [logs, setLogs] = useState<string[]>([
     `[${new Date().toLocaleTimeString()}] Project started...`,
@@ -67,6 +76,10 @@ export default function App() {
   useGameLoop(setState);
   useJuniorDevBot(state, wrappedSetState);
 
+  const handleOnboardingDismiss = useCallback(() => {
+    wrappedSetState(prev => ({ ...prev, onboardingSeen: true }));
+  }, [wrappedSetState]);
+
   const { handleClick, handleCycle, handleBuy } = useGameActions(wrappedSetState);
 
   const hotkeyDispatch = useCallback((action: { type: string; payload?: string }) => {
@@ -91,6 +104,12 @@ export default function App() {
 
   return (
     <TooltipProvider>
+      {!state.onboardingSeen && (
+        <OnboardingOverlay onDismiss={handleOnboardingDismiss} />
+      )}
+      {state.onboardingSeen && gainsRef.current && !dismissed && (
+        <WelcomeBackOverlay gains={gainsRef.current} onDismiss={() => setDismissed(true)} />
+      )}
       <div className="flex min-h-screen">
         <Sidebar activeTab={activeTab} onTab={setActiveTab} />
         <main className="flex-1 p-4 lg:p-6 max-w-2xl mx-auto w-full">

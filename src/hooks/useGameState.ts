@@ -4,6 +4,14 @@ import { migrateState } from '../utils/migrations';
 import { validateState } from '../utils/validateState';
 
 const STORAGE_KEY = 'vibe_coder_save';
+const BACKUP_KEY = 'vibe_coder_save_backup';
+
+function backupCurrentSave() {
+  const current = localStorage.getItem(STORAGE_KEY);
+  if (current !== null) {
+    localStorage.setItem(BACKUP_KEY, current);
+  }
+}
 
 export function loadState(defaultState: GameState): GameState {
   try {
@@ -17,13 +25,17 @@ export function loadState(defaultState: GameState): GameState {
 }
 
 export function saveState(s: GameState) {
+  backupCurrentSave();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 }
 
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 export function debouncedSave(s: GameState) {
   if (saveTimeout) clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => localStorage.setItem(STORAGE_KEY, JSON.stringify(s)), 200);
+  saveTimeout = setTimeout(() => {
+    backupCurrentSave();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  }, 200);
 }
 
 export function writeLines(

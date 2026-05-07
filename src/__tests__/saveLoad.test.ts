@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { defaultState } from '../types/game';
-import { loadState, saveState } from '../hooks/useGameState';
+import { loadState, saveState, debouncedSave } from '../hooks/useGameState';
 
 vi.hoisted(() => {
   const store = new Map<string, string>();
@@ -110,5 +110,46 @@ describe('save/load roundtrip', () => {
     saveState(defaultState);
     const loaded = loadState(defaultState);
     expect(loaded).toStrictEqual(defaultState);
+  });
+});
+
+describe('save backup', () => {
+  it('first save does not create a backup', () => {
+    saveState({ ...defaultState, lines: 10 });
+    const backup = localStorage.getItem('vibe_coder_save_backup');
+    expect(backup).toBeNull();
+  });
+
+  it('second save backs up previous primary save', () => {
+    const first = { ...defaultState, lines: 10 };
+    saveState(first);
+    saveState({ ...defaultState, lines: 20 });
+    const backup = localStorage.getItem('vibe_coder_save_backup');
+    expect(backup).not.toBeNull();
+    expect(JSON.parse(backup!).lines).toBe(10);
+  });
+
+  it('later saves update backup to previous primary', () => {
+    saveState({ ...defaultState, lines: 10 });
+    saveState({ ...defaultState, lines: 20 });
+    saveState({ ...defaultState, lines: 30 });
+    const backup = localStorage.getItem('vibe_coder_save_backup');
+    expect(JSON.parse(backup!).lines).toBe(20);
+  });
+
+  it('debouncedSave backs up previous primary save', () => {
+    vi.useFakeTimers();
+    const first = { ...defaultState, lines: 10 };
+    saveState(first);
+    vi.advanceTimersByTime(0);
+    expect(localStorage.getItem('vibe_coder_save_backup')).toBeNull();
+
+    debouncedSave({ ...defaultState, lines: 20 });
+    vi.advanceTimersByTime(200);
+
+    const backup = localStorage.getItem('vibe_coder_save_backup');
+    expect(backup).not.toBeNull();
+    expect(JSON.parse(backup!).lines).toBe(10);
+    vi.useRealTimers();
   });
 });

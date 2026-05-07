@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { defaultState, KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS } from '../types/game';
+import { defaultState, KB_THRESHOLDS, KB_COSTS } from '../types/game';
 import {
   cost,
   totalCost,
@@ -298,9 +298,7 @@ describe('linesPerClick', () => {
   it('adds kb bonus and scales with perk', () => {
     const s = makeState({ kbOwned: 2, perkKbTier: 1 });
     const result = linesPerClick(s);
-    const kbRaw = 2 * 1.5;
-    const kbPerk = kbRaw * KB_THRESHOLDS[0];
-    expect(result).toBeGreaterThan(1 + kbRaw);
+    expect(result).toBeGreaterThan(1 + 2 * 1.5);
   });
 
   it('scales by ed perk tier', () => {

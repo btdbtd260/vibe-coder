@@ -2,11 +2,11 @@ import { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { GameState } from './types/game';
 import { defaultState } from './types/game';
-import { loadState, saveState, debouncedSave, writeLines } from './hooks/useGameState';
+import { loadState, saveState, debouncedSave } from './hooks/useGameState';
 import { useAutomation } from './hooks/useAutomation';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useSyncKeyHotkeys } from './hooks/useSyncKeyHotkeys';
-import { linesPerClick, moneyPerLine, cost as costFn, fluxCost as fluxCostFn, totalFluxCost, maxAffordableFlux, totalCost, maxAffordable } from './utils/math';
+import { cost as costFn, fluxCost as fluxCostFn, totalFluxCost, maxAffordableFlux, totalCost, maxAffordable } from './utils/math';
 import { TooltipProvider } from './components/ui/TooltipManager';
 import Sidebar from './components/Sidebar';
 import ResourceHero from './components/ResourceHero';
@@ -23,6 +23,7 @@ import ArchiveTab from './components/TabContent/ArchiveTab';
 import DevConsoleTab from './components/TabContent/DevConsoleTab';
 import SeniorOfficeTab from './components/TabContent/SeniorOfficeTab';
 import { useJuniorDevBot } from './hooks/useJuniorDevBot';
+import { useGameActions } from './hooks/useGameActions';
 
 const TAB_COMPONENTS: Record<string, React.FC<any>> = {
   terminal: TerminalTab,
@@ -67,15 +68,13 @@ export default function App() {
   useGameLoop(setState);
   useJuniorDevBot(state, wrappedSetState);
 
+  const { handleClick, handleCycle } = useGameActions(wrappedSetState);
+
   const hotkeyDispatch = useCallback((action: { type: string; payload?: string }) => {
     switch (action.type) {
       case 'tab': setActiveTab(action.payload!); break;
       case 'click':
-        wrappedSetState(prev => {
-          const lpc = linesPerClick(prev);
-          const next = writeLines(prev, lpc, moneyPerLine(prev), 1);
-          return { ...next, totalClicks: next.totalClicks + 1 };
-        });
+        handleClick();
         break;
       case 'buy': {
         const slot = action.payload!;
@@ -123,7 +122,7 @@ export default function App() {
         break;
       }
       case 'cycle':
-        wrappedSetState(prev => ({ ...prev, buyModeIndex: (prev.buyModeIndex + 1) % 4 }));
+        handleCycle();
         break;
     }
   }, [wrappedSetState]);

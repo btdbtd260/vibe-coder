@@ -25,6 +25,7 @@ import {
   getVisiblePerkTier,
   performSeniorPrestige,
 } from '../utils/math';
+import { writeLines } from '../hooks/useGameState';
 
 const makeState = (overrides: Partial<typeof defaultState> = {}) => ({ ...defaultState, ...overrides });
 
@@ -314,6 +315,26 @@ describe('linesPerClick', () => {
   it('includes emCoffee', () => {
     expect(linesPerClick(makeState({ emCoffee: true }))).toBeCloseTo(1.2, 4);
   });
+
+  it('includes standupSync mastery', () => {
+    const s = makeState({ masteryStandupSync: true });
+    expect(linesPerClick(s)).toBeCloseTo(1 * 1.02, 4);
+  });
+
+  it('compounds with other masteries', () => {
+    const s = makeState({ masteryFocusScroll: true, masteryStandupSync: true, masterySprintSprint: true });
+    expect(linesPerClick(s)).toBeCloseTo(1 * 1.02 * 1.02 * 1.03, 4);
+  });
+
+  it('includes testDriven mastery', () => {
+    const s = makeState({ masteryTestDriven: true });
+    expect(linesPerClick(s)).toBeCloseTo(1 * 1.01, 4);
+  });
+
+  it('compounds testDriven with other masteries', () => {
+    const s = makeState({ masteryFocusScroll: true, masteryTestDriven: true, masterySprintSprint: true });
+    expect(linesPerClick(s)).toBeCloseTo(1 * 1.02 * 1.01 * 1.03, 4);
+  });
 });
 
 describe('automationLPS', () => {
@@ -341,6 +362,21 @@ describe('automationLPS', () => {
   it('includes emStack', () => {
     const s = makeState({ lintOwned: 0, emStack: true });
     expect(automationLPS(s)).toBeCloseTo(0.3, 4);
+  });
+
+  it('includes standupSync mastery', () => {
+    const s = makeState({ lintOwned: 10, lintMilestoneBoost: 2, masteryStandupSync: true });
+    expect(automationLPS(s)).toBeCloseTo(10 * 1 * 2 * 1.02, 4);
+  });
+
+  it('includes refactorPro mastery', () => {
+    const s = makeState({ lintOwned: 10, lintMilestoneBoost: 2, masteryRefactorPro: true });
+    expect(automationLPS(s)).toBeCloseTo(10 * 1 * 2 * 1.02, 4);
+  });
+
+  it('compounds refactorPro with other auto masteries', () => {
+    const s = makeState({ lintOwned: 10, lintMilestoneBoost: 1, masteryCodeReview: true, masteryRefactorPro: true });
+    expect(automationLPS(s)).toBeCloseTo(10 * 1.02 * 1.02, 4);
   });
 });
 
@@ -410,6 +446,26 @@ describe('moneyPerLine', () => {
 
   it('returns at least 0.01', () => {
     expect(moneyPerLine(makeState({ masteryTidyComments: true }))).toBeGreaterThanOrEqual(0.01);
+  });
+
+  it('applies agileRetro mastery', () => {
+    const s = makeState({ masteryAgileRetro: true });
+    expect(moneyPerLine(s)).toBeCloseTo(0.10 * 1.02, 4);
+  });
+
+  it('compounds with tidyComments and agileRetro', () => {
+    const s = makeState({ masteryTidyComments: true, masteryAgileRetro: true });
+    expect(moneyPerLine(s)).toBeCloseTo(0.10 * 1.01 * 1.02, 4);
+  });
+
+  it('applies shipIt mastery', () => {
+    const s = makeState({ masteryShipIt: true });
+    expect(moneyPerLine(s)).toBeCloseTo(0.10 * 1.03, 4);
+  });
+
+  it('compounds shipIt with other money masteries', () => {
+    const s = makeState({ masteryTidyComments: true, masteryAgileRetro: true, masteryShipIt: true });
+    expect(moneyPerLine(s)).toBeCloseTo(0.10 * 1.01 * 1.02 * 1.03, 4);
   });
 });
 
@@ -525,5 +581,47 @@ describe('boundary guards', () => {
 
   it('maxAffordableFlux guards against NaN money', () => {
     expect(maxAffordableFlux(0, NaN)).toBe(0);
+  });
+});
+
+describe('writeLines crash regression', () => {
+  it('handles 1e12 vibeXP gain without freeze and produces valid state', () => {
+    const s = makeState({ vibeLevel: 0, vibeXP: 0 });
+    const start = Date.now();
+    const result = writeLines(s, 1e12, 0.10, 1);
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeLessThan(1000);
+    expect(Number.isFinite(result.vibeLevel)).toBe(true);
+    expect(result.vibeLevel).toBeGreaterThan(0);
+    expect(result.vibeXP).toBeLessThan(xpForLevel(result.vibeLevel));
+  });
+
+  it('clickMultiplier guards against Infinity from extreme product', () => {
+    const s = makeState({
+      ascensionMultiplier: 1e200,
+      seniorPoints: 1e100,
+      sfLevel: 100,
+      premiumHyperThreaded: true,
+      masteryMultiThreaded: true,
+      darkWebMultiplier: 1e100,
+      totalClicks: 1e100,
+      premiumAIOverlord: true,
+      premiumEternalLoop: true,
+      ascensionCount: 1e100,
+    });
+    const cm = clickMultiplier(s);
+    expect(Number.isFinite(cm)).toBe(true);
+  });
+
+  it('linesPerClick guards against Infinity from extreme product', () => {
+    const s = makeState({
+      ascensionMultiplier: 1e200,
+      seniorPoints: 1e100,
+      sfLevel: 100,
+      kbOwned: 5000,
+      fluxOwned: 2000,
+    });
+    const lpc = linesPerClick(s);
+    expect(Number.isFinite(lpc)).toBe(true);
   });
 });

@@ -93,7 +93,7 @@ export const clickMultiplier = (s: GameState) => {
   if (s.premiumEternalLoop) m *= (1 + 0.10 * s.ascensionCount);
   m *= 1 + s.darkWebMultiplier;
   m *= seniorFrameworkBonus(s.seniorPoints, s.sfLevel);
-  return m;
+  return finite(m, 1);
 };
 
 export const autoMultiplier = (s: GameState) => {
@@ -123,8 +123,10 @@ export const linesPerClick = (s: GameState) => {
   if (s.masteryFocusScroll) base *= 1.02;
   if (s.masteryPairProgram) base *= 1.01;
   if (s.masterySprintSprint) base *= 1.03;
+  if (s.masteryStandupSync) base *= 1.02;
+  if (s.masteryTestDriven) base *= 1.01;
   if (s.emCoffee) base += 0.2;
-  return base * clickMultiplier(s);
+  return finite(base * clickMultiplier(s), 1);
 };
 
 export const automationLPS = (s: GameState) => {
@@ -134,6 +136,8 @@ export const automationLPS = (s: GameState) => {
   if (s.masteryCodeReview) base *= 1.02;
   if (s.masteryPairProgram) base *= 1.01;
   if (s.masterySprintSprint) base *= 1.03;
+  if (s.masteryStandupSync) base *= 1.02;
+  if (s.masteryRefactorPro) base *= 1.02;
   if (s.emStack) base += 0.3;
   return base * autoMultiplier(s);
 };
@@ -163,7 +167,9 @@ export const moneyPerLine = (s: GameState) => {
   let base = 0.10;
   if (s.emDuck) base += 0.01;
   if (s.masteryTidyComments) base *= 1.01;
-  return Math.max(0.01, base);
+  if (s.masteryAgileRetro) base *= 1.02;
+  if (s.masteryShipIt) base *= 1.03;
+  return finite(Math.max(0.01, base), 0.01);
 };
 
 export const manualLPS = (s: GameState): number => {

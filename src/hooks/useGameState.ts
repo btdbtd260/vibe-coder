@@ -99,8 +99,8 @@ export function writeLines(
   next.money += count * moneyPerLine;
   next.totalLinesEver += count;
   next.vibeXP += count * xpMultiplier;
-  const needed = xpForLevel(next.vibeLevel);
-  while (next.vibeXP >= needed) {
+  while (next.vibeXP >= xpForLevel(next.vibeLevel)) {
+    const needed = xpForLevel(next.vibeLevel);
     next.vibeXP -= needed;
     next.vibeLevel++;
   }

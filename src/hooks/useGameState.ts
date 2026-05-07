@@ -1,6 +1,7 @@
 import type { GameState } from '../types/game';
 import { totalCost, automationLPS, xpForLevel, checkMilestones } from '../utils/math';
 import { migrateState } from '../utils/migrations';
+import { validateState } from '../utils/validateState';
 
 const STORAGE_KEY = 'vibe_coder_save';
 
@@ -9,12 +10,7 @@ export function loadState(defaultState: GameState): GameState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...defaultState };
     const data = JSON.parse(raw);
-    const merged = {
-      ...defaultState,
-      ...data,
-      hotkeys: { ...defaultState.hotkeys, ...(data.hotkeys || {}) },
-    };
-    return migrateState(merged);
+    return migrateState(validateState(data, defaultState));
   } catch {
     return { ...defaultState };
   }

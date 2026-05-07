@@ -69,4 +69,46 @@ describe('save/load roundtrip', () => {
     expect(loaded.lines).toBe(100);
     expect(loaded.money).toBe(50);
   });
+
+  it('numeric field loaded as string falls back to default', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ lines: 'hello' }));
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(0);
+  });
+
+  it('negative numeric value falls back to default', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ vibeLevel: -5 }));
+    const loaded = loadState(defaultState);
+    expect(loaded.vibeLevel).toBe(0);
+  });
+
+  it('NaN numeric field falls back to default', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ money: NaN }));
+    const loaded = loadState(defaultState);
+    expect(loaded.money).toBe(0);
+  });
+
+  it('ascensionMultiplier below 1 falls back to default', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ ascensionMultiplier: 0 }));
+    const loaded = loadState(defaultState);
+    expect(loaded.ascensionMultiplier).toBe(1);
+  });
+
+  it('boolean field as string falls back to default', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ emCoffee: 'yes' }));
+    const loaded = loadState(defaultState);
+    expect(loaded.emCoffee).toBe(false);
+  });
+
+  it('hotkey loaded as number falls back for that key', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ hotkeys: { click: 99 } }));
+    const loaded = loadState(defaultState);
+    expect(loaded.hotkeys.click).toBe(' ');
+  });
+
+  it('full defaultState roundtrip preserves all fields', () => {
+    saveState(defaultState);
+    const loaded = loadState(defaultState);
+    expect(loaded).toStrictEqual(defaultState);
+  });
 });

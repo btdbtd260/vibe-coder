@@ -21,7 +21,7 @@ const NUMERIC_GE0: (keyof GameState)[] = [
   'totalLinesEver', 'totalClicks', 'totalPlayedMs', 'maxLPS',
   'buyModeIndex', 'darkWebMultiplier',
   'currentLPS', 'seniorPoints', 'totalSeniorPoints',
-  'retentionLevel', 'sfLevel',
+  'retentionLevel', 'sfLevel', 'lastSavedAt',
 ];
 
 const NUMERIC_GE1: (keyof GameState)[] = [

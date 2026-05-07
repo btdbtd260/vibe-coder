@@ -27,7 +27,7 @@ describe('save/load roundtrip', () => {
   });
 
   it('saveState then loadState roundtrips mutated state', () => {
-    const mutated = { ...defaultState, lines: 42, money: 999 };
+    const mutated = { ...defaultState, lines: 42, money: 999, version: CURRENT_SAVE_VERSION };
     saveState(mutated);
     const loaded = loadState(defaultState);
     expect(loaded.lines).toBe(42);
@@ -50,25 +50,51 @@ describe('save/load roundtrip', () => {
     expect(loaded.vibeLevel).toBe(0);
   });
 
-  it('default loaded state includes version 1', () => {
+  it('default loaded state includes current version', () => {
     const loaded = loadState(defaultState);
-    expect(loaded.version).toBe(1);
+    expect(loaded.version).toBe(CURRENT_SAVE_VERSION);
   });
 
-  it('saved/loaded state preserves version 1', () => {
+  it('saved/loaded state preserves current version', () => {
     const mutated = { ...defaultState, lines: 50 };
     saveState(mutated);
     const loaded = loadState(defaultState);
-    expect(loaded.version).toBe(1);
+    expect(loaded.version).toBe(CURRENT_SAVE_VERSION);
   });
 
-  it('old save with no version loads as version 1', () => {
+  it('old save with no version loads as current version', () => {
     const oldData = { lines: 100, money: 50 };
     localStorage.setItem('vibe_coder_save', JSON.stringify(oldData));
     const loaded = loadState(defaultState);
-    expect(loaded.version).toBe(1);
+    expect(loaded.version).toBe(CURRENT_SAVE_VERSION);
     expect(loaded.lines).toBe(100);
     expect(loaded.money).toBe(50);
+  });
+
+  it('default loaded state includes lastSavedAt 0', () => {
+    const loaded = loadState(defaultState);
+    expect(loaded.lastSavedAt).toBe(0);
+  });
+
+  it('old save without lastSavedAt loads with lastSavedAt 0', () => {
+    const oldData = { lines: 100 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(oldData));
+    const loaded = loadState(defaultState);
+    expect(loaded.lastSavedAt).toBe(0);
+    expect(loaded.lines).toBe(100);
+  });
+
+  it('invalid lastSavedAt falls back to 0', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ lastSavedAt: -5 }));
+    const loaded = loadState(defaultState);
+    expect(loaded.lastSavedAt).toBe(0);
+  });
+
+  it('valid lastSavedAt is preserved', () => {
+    const ts = 1700000000000;
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ lastSavedAt: ts }));
+    const loaded = loadState(defaultState);
+    expect(loaded.lastSavedAt).toBe(ts);
   });
 
   it('numeric field loaded as string falls back to default', () => {
@@ -194,7 +220,7 @@ describe('backup restore on load', () => {
     localStorage.setItem('vibe_coder_save_backup', JSON.stringify({ lines: 10, version: 0 }));
     const loaded = loadState(defaultState);
     expect(loaded.lines).toBe(10);
-    expect(loaded.version).toBe(1);
+    expect(loaded.version).toBe(CURRENT_SAVE_VERSION);
   });
 
   it('backup fields are validated', () => {
@@ -213,7 +239,7 @@ describe('export/import', () => {
   it('serializeState includes version field', () => {
     const json = serializeState(defaultState);
     const parsed = JSON.parse(json);
-    expect(parsed.version).toBe(1);
+    expect(parsed.version).toBe(CURRENT_SAVE_VERSION);
   });
 
   it('deserializeState roundtrips mutated state', () => {

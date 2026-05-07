@@ -56,6 +56,7 @@ export interface GameState {
   autoBuyerActive: boolean;
   sfLevel: number;
   version: number;
+  lastSavedAt: number;
 }
 
 export const defaultState: GameState = {
@@ -84,7 +85,7 @@ export const defaultState: GameState = {
   clickHistory: [],
   currentLPS: 0,
   seniorPoints: 0, totalSeniorPoints: 0,
-  retentionLevel: 0, autoBuyerActive: false, sfLevel: 0, version: 1,
+  retentionLevel: 0, autoBuyerActive: false, sfLevel: 0, version: 2, lastSavedAt: 0,
 };
 
 export type BuyMode = '1x' | '10x' | '100x' | 'MAX';

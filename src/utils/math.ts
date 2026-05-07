@@ -1,5 +1,4 @@
 import type { GameState } from '../types/game';
-import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS } from '../types/game';
 
 const capOwned = (n: number) => Math.min(n, 5000);
 const capFlux = (n: number) => Math.min(n, 5000);

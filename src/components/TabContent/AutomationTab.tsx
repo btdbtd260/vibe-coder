@@ -8,7 +8,6 @@ interface Props {
 }
 
 export default function AutomationTab({ state, addLog }: Props) {
-  const s = state.useScientific;
   const hasLinter = state.lintOwned > 0;
   const showPuzzle = state.totalLinesEver >= 50000 && state.lintOwned >= 1;
 

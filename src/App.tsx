@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { GameState } from './types/game';
 import { defaultState } from './types/game';
-import { loadState, saveState, debouncedSave, getLastOfflineGains } from './hooks/useGameState';
+import { loadState, debouncedSave, getLastOfflineGains } from './hooks/useGameState';
 import type { OfflineGains } from './hooks/useGameState';
 import { useAutomation } from './hooks/useAutomation';
 import { useGameLoop } from './hooks/useGameLoop';

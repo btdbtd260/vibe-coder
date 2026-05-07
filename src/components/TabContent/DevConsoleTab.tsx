@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import type { GameState } from '../../types/game';
-import { writeLines } from '../../hooks/useGameState';
-import { linesPerClick, moneyPerLine } from '../../utils/math';
 
 interface Props {
   state: GameState;

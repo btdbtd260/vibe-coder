@@ -1,5 +1,5 @@
 import type { GameState } from '../types/game';
-import { totalCost, automationLPS, xpForLevel, checkMilestones } from '../utils/math';
+import { automationLPS, xpForLevel, checkMilestones } from '../utils/math';
 import { migrateState, CURRENT_SAVE_VERSION } from '../utils/migrations';
 import { validateState } from '../utils/validateState';
 import { computeOfflineProgress } from '../utils/offlineProgress';

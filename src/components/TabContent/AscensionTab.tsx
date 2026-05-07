@@ -15,7 +15,6 @@ export default function AscensionTab({ state, setState, addLog }: Props) {
   const canAscend = state.money >= 1000000;
 
   const ascend = () => {
-    const bonus = Math.floor(Math.sqrt(state.totalLinesEver / 1000000));
     const next: GameState = {
       ...state,
       ascensionMultiplier: newMult,

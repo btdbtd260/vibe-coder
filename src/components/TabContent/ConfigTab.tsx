@@ -12,7 +12,6 @@ interface Props {
 export default function ConfigTab({ state, setState, addLog }: Props) {
   const [rebinding, setRebinding] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const s = state.useScientific;
 
   const toggleNotation = () => setState({ ...state, useScientific: !state.useScientific });
   const toggleOfflineProgress = () => setState({ ...state, offlineProgressEnabled: !state.offlineProgressEnabled });

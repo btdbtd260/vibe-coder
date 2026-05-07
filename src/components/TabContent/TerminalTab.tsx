@@ -12,7 +12,7 @@ interface Props {
   addLog: (msg: string) => void;
 }
 
-export default function TerminalTab({ state, setState, logs, addLog }: Props) {
+export default function TerminalTab({ state, setState, logs }: Props) {
   const modes = ['1x', '10x', '100x', 'MAX'];
   const s = state.useScientific;
   const edMaxed = state.edOwned >= 5;
@@ -25,7 +25,7 @@ export default function TerminalTab({ state, setState, logs, addLog }: Props) {
     setState({ ...next, totalClicks: next.totalClicks + 1, clickHistory: [...next.clickHistory, Date.now()].slice(-100) });
   };
 
-  const buy = (key: keyof GameState, base: number, limit: number | null, label: string) => {
+  const buy = (key: keyof GameState, base: number, limit: number | null) => {
     const owned = state[key] as number;
     const mode = modes[modeIdx];
     let c = 1;
@@ -89,16 +89,16 @@ export default function TerminalTab({ state, setState, logs, addLog }: Props) {
           <UpgradeCard title="Energy Drink" owned={state.edOwned}
             cost={formatNum(cost(1, state.edOwned, state.masteryCloudCredit, flux), s)}
             effect="+0.5 click power" maxed={false}
-            count={edCount} onBuy={() => buy('edOwned', 1, 5, 'Energy Drink')} tooltipId="edOwned" />
+            count={edCount} onBuy={() => buy('edOwned', 1, 5)} tooltipId="edOwned" />
         )}
         <UpgradeCard title="Mech Keyboard" owned={state.kbOwned}
           cost={formatNum(cost(5, state.kbOwned, state.masteryCloudCredit, flux), s)}
           effect="+1.5 click power"
-          count={kbCount} onBuy={() => buy('kbOwned', 5, null, 'Mechanical Keyboard')} tooltipId="kbOwned" />
+          count={kbCount} onBuy={() => buy('kbOwned', 5, null)} tooltipId="kbOwned" />
         <UpgradeCard title="Auto-Linter" owned={state.lintOwned}
           cost={formatNum(cost(20, state.lintOwned, state.masteryCloudCredit, flux), s)}
           effect="+1 LoC/sec"
-          count={lintCount} onBuy={() => buy('lintOwned', 20, null, 'Auto-Linter')} tooltipId="lintOwned" />
+          count={lintCount} onBuy={() => buy('lintOwned', 20, null)} tooltipId="lintOwned" />
       </div>
 
       <div className="glass-card p-3">

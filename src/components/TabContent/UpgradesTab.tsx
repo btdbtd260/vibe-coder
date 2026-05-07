@@ -24,7 +24,6 @@ const MASTERIES = [
 
 export default function UpgradesTab({ state, setState, addLog }: Props) {
   const [subTab, setSubTab] = useState(0);
-  const s = state.useScientific;
   const av = state.vibeLevel - state.spentLevels;
 
   const buyMastery = (key: string, cost: number, label: string) => {

@@ -1,5 +1,3 @@
-import type { GameState } from '../types/game';
-
 export interface TooltipContent {
   title: string;
   long: string;

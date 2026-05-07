@@ -39,10 +39,9 @@ export function TooltipProvider({ children }: { children: ReactNode }) {
   const hideTooltip = useCallback(() => setTip(null), []);
 
   const handlers = {
-    onMouseEnter: (e: React.MouseEvent) => {},
+    onMouseEnter: () => {},
     onMouseMove: (e: React.MouseEvent) => {
       if (!isTouch) {
-        const rect = (e.target as HTMLElement).getBoundingClientRect();
         setTip(prev => prev ? { ...prev, x: e.clientX + 12, y: e.clientY + 12 } : null);
       }
     },
@@ -111,13 +110,11 @@ export function useTooltip(content: Omit<TooltipState, 'x' | 'y'> | null) {
     tooltipHandlers: {
       onMouseEnter: wrap(ctx.tooltipHandlers.onMouseEnter),
       onMouseMove: (e: React.MouseEvent) => {
-        const rect = (e.target as HTMLElement).getBoundingClientRect();
         const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
         if (!isTouch) ctx.showTooltip(content, e);
       },
       onMouseLeave: ctx.tooltipHandlers.onMouseLeave,
       onFocus: (e: React.FocusEvent) => {
-        const rect = (e.target as HTMLElement).getBoundingClientRect();
         ctx.showTooltip(content, e);
       },
       onBlur: ctx.tooltipHandlers.onBlur,

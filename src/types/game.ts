@@ -39,6 +39,7 @@ export interface GameState {
   totalPlayedMs: number;
   maxLPS: number;
   useScientific: boolean;
+  offlineProgressEnabled: boolean;
   buyModeIndex: number;
   hotkeys: {
     click: string;
@@ -73,7 +74,7 @@ export const defaultState: GameState = {
   vibeLevel: 0, vibeXP: 0, spentLevels: 0,
   ascensionMultiplier: 1, ascensionCount: 0, lintMilestoneBoost: 1,
   totalLinesEver: 0, totalClicks: 0, totalPlayedMs: 0, maxLPS: 0,
-  useScientific: false, buyModeIndex: 0,
+  useScientific: false, offlineProgressEnabled: true, buyModeIndex: 0,
   hotkeys: {
     click: ' ',
     tab_terminal: '1', tab_automation: '2', tab_ascension: '3',
@@ -85,7 +86,7 @@ export const defaultState: GameState = {
   clickHistory: [],
   currentLPS: 0,
   seniorPoints: 0, totalSeniorPoints: 0,
-  retentionLevel: 0, autoBuyerActive: false, sfLevel: 0, version: 2, lastSavedAt: 0,
+  retentionLevel: 0, autoBuyerActive: false, sfLevel: 0, version: 3, lastSavedAt: 0,
 };
 
 export type BuyMode = '1x' | '10x' | '100x' | 'MAX';

@@ -1,6 +1,6 @@
 import type { GameState } from '../types/game';
 
-export const CURRENT_SAVE_VERSION = 2;
+export const CURRENT_SAVE_VERSION = 3;
 
 type Migration = (state: GameState) => GameState;
 

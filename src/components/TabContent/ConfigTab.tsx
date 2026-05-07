@@ -15,6 +15,7 @@ export default function ConfigTab({ state, setState, addLog }: Props) {
   const s = state.useScientific;
 
   const toggleNotation = () => setState({ ...state, useScientific: !state.useScientific });
+  const toggleOfflineProgress = () => setState({ ...state, offlineProgressEnabled: !state.offlineProgressEnabled });
 
   const handleSave = () => {
     saveState(state);
@@ -106,6 +107,14 @@ export default function ConfigTab({ state, setState, addLog }: Props) {
         <button onClick={toggleNotation}
           className="w-full py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">
           {state.useScientific ? 'Scientific' : 'Standard'}
+        </button>
+      </div>
+
+      <div className="glass-card p-4">
+        <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider mb-2">Offline Progress</h3>
+        <button onClick={toggleOfflineProgress}
+          className="w-full py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">
+          {state.offlineProgressEnabled ? 'Enabled' : 'Disabled'}
         </button>
       </div>
 

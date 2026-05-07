@@ -30,6 +30,9 @@ export function loadState(defaultState: GameState, now?: number): GameState {
   const applyOffline = (loaded: GameState): GameState => {
     if (loaded.lastSavedAt <= 0) return loaded;
     const _now = now ?? Date.now();
+    if (!loaded.offlineProgressEnabled) {
+      return { ...loaded, lastSavedAt: _now };
+    }
     const elapsed = _now - loaded.lastSavedAt;
     const result = computeOfflineProgress(loaded, elapsed);
     result.lastSavedAt = _now;

@@ -361,4 +361,42 @@ describe('offline progress on load', () => {
     expect(loaded.lines).toBe(expected.lines);
     expect(loaded.money).toBeCloseTo(expected.money, 1);
   });
+
+  it('old save without offlineProgressEnabled defaults to true', () => {
+    const saved = { ...defaultState, offlineProgressEnabled: undefined as any };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    const loaded = loadState(defaultState);
+    expect(loaded.offlineProgressEnabled).toBe(true);
+  });
+
+  it('non-boolean offlineProgressEnabled falls back to true', () => {
+    const saved = { ...defaultState, offlineProgressEnabled: 'yes' as any };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    const loaded = loadState(defaultState);
+    expect(loaded.offlineProgressEnabled).toBe(true);
+  });
+
+  it('disabled skips offline gains but stamps lastSavedAt', () => {
+    const saved = { ...defaultState, lastSavedAt: 1000, offlineProgressEnabled: false, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    const loaded = loadState(defaultState, 6000);
+    expect(loaded.lines).toBe(0);
+    expect(loaded.lastSavedAt).toBe(6000);
+  });
+
+  it('enabled still applies offline gains', () => {
+    const saved = { ...defaultState, lastSavedAt: 1000, offlineProgressEnabled: true, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    const loaded = loadState(defaultState, 6000);
+    const expected = computeOfflineProgress(saved, 5000);
+    expect(loaded.lines).toBe(expected.lines);
+    expect(loaded.money).toBeCloseTo(expected.money, 1);
+  });
+
+  it('toggle false survives save/load roundtrip', () => {
+    const saved = { ...defaultState, offlineProgressEnabled: false };
+    saveState(saved);
+    const loaded = loadState(defaultState);
+    expect(loaded.offlineProgressEnabled).toBe(false);
+  });
 });

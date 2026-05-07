@@ -2,6 +2,7 @@ import type { GameState } from '../types/game';
 import { totalCost, automationLPS, xpForLevel, checkMilestones } from '../utils/math';
 import { migrateState, CURRENT_SAVE_VERSION } from '../utils/migrations';
 import { validateState } from '../utils/validateState';
+import { computeOfflineProgress } from '../utils/offlineProgress';
 
 const STORAGE_KEY = 'vibe_coder_save';
 const BACKUP_KEY = 'vibe_coder_save_backup';
@@ -25,11 +26,20 @@ function tryLoadFromKey(key: string, defaultState: GameState): GameState | null 
   }
 }
 
-export function loadState(defaultState: GameState): GameState {
+export function loadState(defaultState: GameState, now?: number): GameState {
+  const applyOffline = (loaded: GameState): GameState => {
+    if (loaded.lastSavedAt <= 0) return loaded;
+    const _now = now ?? Date.now();
+    const elapsed = _now - loaded.lastSavedAt;
+    const result = computeOfflineProgress(loaded, elapsed);
+    result.lastSavedAt = _now;
+    return result;
+  };
+
   const primary = tryLoadFromKey(STORAGE_KEY, defaultState);
-  if (primary !== null) return primary;
+  if (primary !== null) return applyOffline(primary);
   const backup = tryLoadFromKey(BACKUP_KEY, defaultState);
-  if (backup !== null) return backup;
+  if (backup !== null) return applyOffline(backup);
   return { ...defaultState };
 }
 

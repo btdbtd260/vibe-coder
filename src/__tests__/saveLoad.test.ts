@@ -2,6 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { defaultState } from '../types/game';
 import { loadState, saveState, debouncedSave, serializeState, deserializeState } from '../hooks/useGameState';
 import { CURRENT_SAVE_VERSION } from '../utils/migrations';
+import { computeOfflineProgress } from '../utils/offlineProgress';
 
 vi.hoisted(() => {
   const store = new Map<string, string>();
@@ -91,11 +92,10 @@ describe('save/load roundtrip', () => {
     expect(loaded.lastSavedAt).toBe(0);
   });
 
-  it('valid lastSavedAt is preserved', () => {
-    const ts = 1700000000000;
-    localStorage.setItem('vibe_coder_save', JSON.stringify({ lastSavedAt: ts }));
-    const loaded = loadState(defaultState);
-    expect(loaded.lastSavedAt).toBe(ts);
+  it('valid lastSavedAt in stored data is used for offline then stamped to now', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ lastSavedAt: 1000, lintOwned: 10, lintMilestoneBoost: 2 }));
+    const loaded = loadState(defaultState, 6000);
+    expect(loaded.lastSavedAt).toBe(6000);
   });
 
   it('numeric field loaded as string falls back to default', () => {
@@ -308,5 +308,57 @@ describe('export/import', () => {
     saveState(result!);
     const loaded = loadState(defaultState);
     expect(loaded.lines).toBe(77);
+  });
+});
+
+describe('offline progress on load', () => {
+  it('lastSavedAt > 0 applies offline gains', () => {
+    const saved = { ...defaultState, lastSavedAt: 0, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    const loaded = loadState(defaultState, 5000);
+    const expected = computeOfflineProgress(saved, 5000);
+    expect(loaded.lines).toBe(expected.lines);
+    expect(loaded.money).toBeCloseTo(expected.money, 1);
+  });
+
+  it('lastSavedAt = 0 skips offline gains', () => {
+    const saved = { ...defaultState, lastSavedAt: 0, lintOwned: 10, lintMilestoneBoost: 2, lines: 42 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    const loaded = loadState(defaultState, 5000);
+    expect(loaded.lines).toBe(42);
+    expect(loaded.lastSavedAt).toBe(0);
+  });
+
+  it('lastSavedAt stamped to provided now after load', () => {
+    const saved = { ...defaultState, lastSavedAt: 1000, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    const loaded = loadState(defaultState, 6000);
+    expect(loaded.lastSavedAt).toBe(6000);
+  });
+
+  it('backup restore also applies offline gains', () => {
+    localStorage.removeItem('vibe_coder_save');
+    const saved = { ...defaultState, lastSavedAt: 1000, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save_backup', JSON.stringify(saved));
+    const loaded = loadState(defaultState, 7000);
+    const expected = computeOfflineProgress(saved, 6000);
+    expect(loaded.lines).toBe(expected.lines);
+    expect(loaded.lastSavedAt).toBe(7000);
+  });
+
+  it('empty storage returns defaultState unchanged', () => {
+    localStorage.clear();
+    const loaded = loadState(defaultState, 50000);
+    expect(loaded).toStrictEqual(defaultState);
+    expect(loaded.lastSavedAt).toBe(0);
+  });
+
+  it('24h cap enforced through load', () => {
+    const saved = { ...defaultState, lastSavedAt: 1000, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    const loaded = loadState(defaultState, 100_000_000_000);
+    const expected = computeOfflineProgress(saved, 86_400_000);
+    expect(loaded.lines).toBe(expected.lines);
+    expect(loaded.money).toBeCloseTo(expected.money, 1);
   });
 });

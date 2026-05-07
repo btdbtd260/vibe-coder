@@ -36,7 +36,7 @@ const BOOLEANS: (keyof GameState)[] = [
   'masteryMultiThreaded', 'masteryAlgorithm', 'masteryCloudCredit',
   'masteryFocusScroll', 'masteryTidyComments', 'masteryCodeReview',
   'masteryPairProgram', 'masterySprintSprint',
-  'useScientific', 'autoBuyerActive', 'offlineProgressEnabled',
+  'useScientific', 'autoBuyerActive', 'offlineProgressEnabled', 'onboardingSeen',
 ];
 
 const HOTKEY_NAMES: (keyof GameState['hotkeys'])[] = [

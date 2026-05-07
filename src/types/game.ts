@@ -55,6 +55,7 @@ export interface GameState {
   totalSeniorPoints: number;
   retentionLevel: number;
   autoBuyerActive: boolean;
+  onboardingSeen: boolean;
   sfLevel: number;
   version: number;
   lastSavedAt: number;
@@ -86,7 +87,7 @@ export const defaultState: GameState = {
   clickHistory: [],
   currentLPS: 0,
   seniorPoints: 0, totalSeniorPoints: 0,
-  retentionLevel: 0, autoBuyerActive: false, sfLevel: 0, version: 3, lastSavedAt: 0,
+  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 4, lastSavedAt: 0,
 };
 
 export type BuyMode = '1x' | '10x' | '100x' | 'MAX';

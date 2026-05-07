@@ -452,3 +452,28 @@ describe('offline gains capture', () => {
     expect(getLastOfflineGains()).toBeNull();
   });
 });
+
+describe('onboardingSeen', () => {
+  it('default onboardingSeen is false', () => {
+    expect(defaultState.onboardingSeen).toBe(false);
+  });
+
+  it('migration v3 sets onboardingSeen true', () => {
+    const v3Save = { ...defaultState, version: 3, onboardingSeen: undefined as any };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(v3Save));
+    const loaded = loadState(defaultState);
+    expect(loaded.onboardingSeen).toBe(true);
+  });
+
+  it('onboardingSeen roundtrips', () => {
+    const withFalse = { ...defaultState, onboardingSeen: false };
+    saveState(withFalse);
+    const loadedFalse = loadState(defaultState);
+    expect(loadedFalse.onboardingSeen).toBe(false);
+
+    const withTrue = { ...defaultState, onboardingSeen: true };
+    saveState(withTrue);
+    const loadedTrue = loadState(defaultState);
+    expect(loadedTrue.onboardingSeen).toBe(true);
+  });
+});

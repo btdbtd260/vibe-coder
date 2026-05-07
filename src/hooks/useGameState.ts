@@ -5,6 +5,7 @@ import { validateState } from '../utils/validateState';
 import { computeOfflineProgress } from '../utils/offlineProgress';
 export { autoBuyEditors } from '../utils/autoEditors';
 export { autoBuyUpgrades } from '../utils/autoUpgrades';
+export { autoAscend } from '../utils/autoAscension';
 
 const STORAGE_KEY = 'vibe_coder_save';
 const BACKUP_KEY = 'vibe_coder_save_backup';

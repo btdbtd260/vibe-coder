@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { GameState } from '../../types/game';
 import { formatNum } from '../../utils/math';
 
@@ -83,6 +83,52 @@ function OptionControl({ label, options, value, onChange }: {
   );
 }
 
+function IntervalInputControl({ label, value, onChange, min = 1 }: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+}) {
+  const [draft, setDraft] = useState(String(value));
+  const lastValid = useRef(value);
+
+  useEffect(() => {
+    lastValid.current = value;
+    setDraft(String(value));
+  }, [value]);
+
+  const commit = (raw: string) => {
+    const parsed = parseFloat(raw);
+    if (Number.isFinite(parsed) && parsed >= min) {
+      lastValid.current = parsed;
+      onChange(parsed);
+    }
+  };
+
+  return (
+    <div className="flex justify-between items-center py-1.5 border-b border-dark-700 last:border-0 text-[0.7rem]">
+      <span className="text-dark-300">{label}</span>
+      <input
+        type="number"
+        step="any"
+        min={min}
+        value={draft}
+        onChange={e => {
+          setDraft(e.target.value);
+          commit(e.target.value);
+        }}
+        onBlur={() => {
+          const parsed = parseFloat(draft);
+          if (!Number.isFinite(parsed) || parsed < min) {
+            setDraft(String(lastValid.current));
+          }
+        }}
+        className="w-16 text-right bg-dark-600/50 border border-dark-400 rounded px-2 py-0.5 text-neon-300 font-bold text-[0.7rem] focus:outline-none focus:border-neon-300/50"
+      />
+    </div>
+  );
+}
+
 export default function AutomationTab({ state, setState, addLog }: Props) {
   const hasLinter = state.lintOwned > 0;
   const showPuzzle = state.totalLinesEver >= 50000 && state.lintOwned >= 1;
@@ -96,7 +142,7 @@ export default function AutomationTab({ state, setState, addLog }: Props) {
         </div>
         <OptionControl label="Buy Mode" options={['1x', 'max']} value={state.autoEditors.buyMode} onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, buyMode: v as '1x' | 'max' } })} />
         <StepperControl label="Money Reserve" value={state.autoEditors.moneyReservePct} min={0} max={100} step={5} suffix="%" onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, moneyReservePct: v } })} />
-        <StepperControl label="Interval" value={state.autoEditors.intervalSec} min={1} max={60} step={1} suffix="s" onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, intervalSec: v } })} />
+        <IntervalInputControl label="Interval" value={state.autoEditors.intervalSec} onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, intervalSec: v } })} />
         <ToggleControl label="Buy Cheapest" value={state.autoEditors.buyCheapest} onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, buyCheapest: v } })} />
       </div>
 
@@ -107,7 +153,7 @@ export default function AutomationTab({ state, setState, addLog }: Props) {
         </div>
         <StepperControl label="Money Reserve" value={state.autoUpgrades.moneyReservePct} min={0} max={100} step={5} suffix="%" onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, moneyReservePct: v } })} />
         <StepperControl label="Vibe Reserve" value={state.autoUpgrades.vibeReservePct} min={0} max={100} step={5} suffix="%" onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, vibeReservePct: v } })} />
-        <StepperControl label="Interval" value={state.autoUpgrades.intervalSec} min={1} max={60} step={1} suffix="s" onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, intervalSec: v } })} />
+        <IntervalInputControl label="Interval" value={state.autoUpgrades.intervalSec} onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, intervalSec: v } })} />
         <ToggleControl label="Buy Cheapest" value={state.autoUpgrades.buyCheapest} onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, buyCheapest: v } })} />
       </div>
 
@@ -118,7 +164,7 @@ export default function AutomationTab({ state, setState, addLog }: Props) {
         </div>
         <StepperControl label="Threshold Mult" value={state.autoAscension.thresholdMultiplier} min={1} max={100} step={1} suffix="x" onChange={v => setState({ ...state, autoAscension: { ...state.autoAscension, thresholdMultiplier: v } })} />
         <StepperControl label="Min Run Time" value={state.autoAscension.minimumRunTimeSec} min={30} max={3600} step={30} suffix="s" onChange={v => setState({ ...state, autoAscension: { ...state.autoAscension, minimumRunTimeSec: v } })} />
-        <StepperControl label="Interval" value={state.autoAscension.intervalSec} min={1} max={60} step={1} suffix="s" onChange={v => setState({ ...state, autoAscension: { ...state.autoAscension, intervalSec: v } })} />
+        <IntervalInputControl label="Interval" value={state.autoAscension.intervalSec} onChange={v => setState({ ...state, autoAscension: { ...state.autoAscension, intervalSec: v } })} />
       </div>
 
       <div className="glass-card p-3">

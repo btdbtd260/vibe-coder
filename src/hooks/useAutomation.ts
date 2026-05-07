@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { GameState } from '../types/game';
-import { autoTick, autoBuyEditors, autoBuyUpgrades } from './useGameState';
+import { autoTick, autoBuyEditors, autoBuyUpgrades, autoAscend } from './useGameState';
 
 export function useAutomation(
   setState: (s: GameState | ((prev: GameState) => GameState)) => void,
@@ -8,6 +8,7 @@ export function useAutomation(
 ) {
   const lastAutoEditorRef = useRef(Date.now());
   const lastAutoUpgradeRef = useRef(Date.now());
+  const lastAutoAscensionRef = useRef(Date.now());
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -29,6 +30,14 @@ export function useAutomation(
           if (elapsed >= next.autoUpgrades.intervalSec * 1000) {
             lastAutoUpgradeRef.current = now;
             next = autoBuyUpgrades(next);
+          }
+        }
+
+        if (next.autoAscension.enabled) {
+          const elapsed = now - lastAutoAscensionRef.current;
+          if (elapsed >= next.autoAscension.intervalSec * 1000) {
+            lastAutoAscensionRef.current = now;
+            next = autoAscend(next);
           }
         }
 

@@ -1,6 +1,6 @@
 import type { GameState } from '../types/game';
 import { totalCost, automationLPS, xpForLevel, checkMilestones } from '../utils/math';
-import { migrateState } from '../utils/migrations';
+import { migrateState, CURRENT_SAVE_VERSION } from '../utils/migrations';
 import { validateState } from '../utils/validateState';
 
 const STORAGE_KEY = 'vibe_coder_save';
@@ -74,4 +74,22 @@ export function autoTick(s: GameState): GameState {
   const lps = automationLPS(s);
   const xpMult = s.masteryAlgorithm ? 0.5 : 1;
   return writeLines(s, lps, 0.10 + (s.emDuck ? 0.01 : 0), xpMult);
+}
+
+export function serializeState(state: GameState): string {
+  return JSON.stringify(state, null, 2);
+}
+
+export function deserializeState(
+  json: string,
+  defaultState: GameState,
+): GameState | null {
+  try {
+    const data = JSON.parse(json);
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) return null;
+    if (typeof data.version === 'number' && data.version > CURRENT_SAVE_VERSION) return null;
+    return migrateState(validateState(data, defaultState));
+  } catch {
+    return null;
+  }
 }

@@ -1,6 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { defaultState } from '../types/game';
-import { loadState, saveState, debouncedSave } from '../hooks/useGameState';
+import { loadState, saveState, debouncedSave, serializeState, deserializeState } from '../hooks/useGameState';
+import { CURRENT_SAVE_VERSION } from '../utils/migrations';
 
 vi.hoisted(() => {
   const store = new Map<string, string>();
@@ -200,5 +201,62 @@ describe('backup restore on load', () => {
     localStorage.setItem('vibe_coder_save_backup', JSON.stringify({ money: 'bad' }));
     const loaded = loadState(defaultState);
     expect(loaded.money).toBe(0);
+  });
+});
+
+describe('export/import', () => {
+  it('serializeState produces valid JSON', () => {
+    const json = serializeState(defaultState);
+    expect(() => JSON.parse(json)).not.toThrow();
+  });
+
+  it('serializeState includes version field', () => {
+    const json = serializeState(defaultState);
+    const parsed = JSON.parse(json);
+    expect(parsed.version).toBe(1);
+  });
+
+  it('deserializeState roundtrips mutated state', () => {
+    const mutated = { ...defaultState, lines: 42, money: 999 };
+    const json = serializeState(mutated);
+    const result = deserializeState(json, defaultState);
+    expect(result).not.toBeNull();
+    expect(result!.lines).toBe(42);
+    expect(result!.money).toBe(999);
+  });
+
+  it('rejects non-JSON string', () => {
+    expect(deserializeState('not json', defaultState)).toBeNull();
+  });
+
+  it('rejects JSON array', () => {
+    expect(deserializeState('[1,2,3]', defaultState)).toBeNull();
+  });
+
+  it('rejects null JSON', () => {
+    expect(deserializeState('null', defaultState)).toBeNull();
+  });
+
+  it('rejects future version', () => {
+    const future = { ...defaultState, version: CURRENT_SAVE_VERSION + 1 };
+    const json = serializeState(future as any);
+    expect(deserializeState(json, defaultState)).toBeNull();
+  });
+
+  it('sanitizes bad fields', () => {
+    const json = JSON.stringify({ money: 'bad' });
+    const result = deserializeState(json, defaultState);
+    expect(result).not.toBeNull();
+    expect(result!.money).toBe(0);
+  });
+
+  it('deserialized state can be saved and loaded', () => {
+    const mutated = { ...defaultState, lines: 77 };
+    const json = serializeState(mutated);
+    const result = deserializeState(json, defaultState);
+    expect(result).not.toBeNull();
+    saveState(result!);
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(77);
   });
 });

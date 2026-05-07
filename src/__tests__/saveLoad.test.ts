@@ -153,3 +153,52 @@ describe('save backup', () => {
     vi.useRealTimers();
   });
 });
+
+describe('backup restore on load', () => {
+  it('uses backup when primary is missing', () => {
+    localStorage.setItem('vibe_coder_save_backup', JSON.stringify({ lines: 50 }));
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(50);
+  });
+
+  it('uses backup when primary has broken JSON', () => {
+    localStorage.setItem('vibe_coder_save', '{broken');
+    localStorage.setItem('vibe_coder_save_backup', JSON.stringify({ lines: 50 }));
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(50);
+  });
+
+  it('uses backup when primary is empty string', () => {
+    localStorage.setItem('vibe_coder_save', '');
+    localStorage.setItem('vibe_coder_save_backup', JSON.stringify({ lines: 50 }));
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(50);
+  });
+
+  it('returns defaultState when both primary and backup are corrupted', () => {
+    localStorage.setItem('vibe_coder_save', '{broken');
+    localStorage.setItem('vibe_coder_save_backup', '{also broken');
+    const loaded = loadState(defaultState);
+    expect(loaded).toStrictEqual(defaultState);
+  });
+
+  it('valid primary ignores backup', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ lines: 100 }));
+    localStorage.setItem('vibe_coder_save_backup', JSON.stringify({ lines: 50 }));
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(100);
+  });
+
+  it('backup goes through migration', () => {
+    localStorage.setItem('vibe_coder_save_backup', JSON.stringify({ lines: 10, version: 0 }));
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(10);
+    expect(loaded.version).toBe(1);
+  });
+
+  it('backup fields are validated', () => {
+    localStorage.setItem('vibe_coder_save_backup', JSON.stringify({ money: 'bad' }));
+    const loaded = loadState(defaultState);
+    expect(loaded.money).toBe(0);
+  });
+});

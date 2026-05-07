@@ -13,15 +13,24 @@ function backupCurrentSave() {
   }
 }
 
-export function loadState(defaultState: GameState): GameState {
+function tryLoadFromKey(key: string, defaultState: GameState): GameState | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...defaultState };
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
     const data = JSON.parse(raw);
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) return null;
     return migrateState(validateState(data, defaultState));
   } catch {
-    return { ...defaultState };
+    return null;
   }
+}
+
+export function loadState(defaultState: GameState): GameState {
+  const primary = tryLoadFromKey(STORAGE_KEY, defaultState);
+  if (primary !== null) return primary;
+  const backup = tryLoadFromKey(BACKUP_KEY, defaultState);
+  if (backup !== null) return backup;
+  return { ...defaultState };
 }
 
 export function saveState(s: GameState) {

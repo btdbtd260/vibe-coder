@@ -3,7 +3,7 @@ import { formatNum, seniorPointsToGain, performSeniorPrestige, SENIOR_PRESTIGE_T
 
 interface Props {
   state: GameState;
-  setState: (s: GameState) => void;
+  setState: (s: GameState | ((prev: GameState) => GameState)) => void;
   addLog: (msg: string) => void;
 }
 
@@ -23,8 +23,11 @@ export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
   const retCost = Math.ceil(2 * Math.pow(2.5, state.retentionLevel));
 
   const buySF = () => {
-    if (state.seniorPoints < sfCost) return;
-    setState({ ...state, seniorPoints: state.seniorPoints - sfCost, sfLevel: state.sfLevel + 1 });
+    setState(prev => {
+      const cost = Math.ceil(1 * Math.pow(1.5, prev.sfLevel));
+      if (prev.seniorPoints < cost) return prev;
+      return { ...prev, seniorPoints: prev.seniorPoints - cost, sfLevel: prev.sfLevel + 1 };
+    });
     addLog('Standardized Framework upgraded.');
   };
 
@@ -35,8 +38,11 @@ export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
   };
 
   const buyRetention = () => {
-    if (state.seniorPoints < retCost) return;
-    setState({ ...state, seniorPoints: state.seniorPoints - retCost, retentionLevel: state.retentionLevel + 1 });
+    setState(prev => {
+      const cost = Math.ceil(2 * Math.pow(2.5, prev.retentionLevel));
+      if (prev.seniorPoints < cost) return prev;
+      return { ...prev, seniorPoints: prev.seniorPoints - cost, retentionLevel: prev.retentionLevel + 1 };
+    });
     addLog('Legacy Documentation upgraded.');
   };
 

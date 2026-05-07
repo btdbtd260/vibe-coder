@@ -4,16 +4,124 @@ import { formatNum } from '../../utils/math';
 
 interface Props {
   state: GameState;
+  setState: (s: GameState) => void;
   addLog: (msg: string) => void;
 }
 
-export default function AutomationTab({ state, addLog }: Props) {
+function StepperControl({ label, value, min, max, step, suffix, onChange }: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  suffix: string;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="flex justify-between items-center py-1.5 border-b border-dark-700 last:border-0 text-[0.7rem]">
+      <span className="text-dark-300">{label}</span>
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onChange(Math.max(min, value - step))}
+          className="text-[0.6rem] px-2 py-0.5 rounded border border-dark-400 text-dark-200 hover:bg-dark-600/30 cursor-pointer transition-all uppercase tracking-wider"
+        >−</button>
+        <span className="text-neon-300 font-bold w-8 text-center">{value}{suffix}</span>
+        <button
+          onClick={() => onChange(Math.min(max, value + step))}
+          className="text-[0.6rem] px-2 py-0.5 rounded border border-dark-400 text-dark-200 hover:bg-dark-600/30 cursor-pointer transition-all uppercase tracking-wider"
+        >+</button>
+      </div>
+    </div>
+  );
+}
+
+function ToggleControl({ label, value, onChange }: {
+  label: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  const btn = (active: boolean, text: string) => (
+    <button
+      onClick={() => onChange(active)}
+      className={`text-[0.6rem] px-2 py-0.5 rounded border cursor-pointer transition-all uppercase tracking-wider ${active === value ? 'border-neon-300 text-neon-300 bg-neon-300/10' : 'border-dark-400 text-dark-200'}`}
+    >
+      {text}
+    </button>
+  );
+  return (
+    <div className="flex justify-between items-center py-1.5 border-b border-dark-700 last:border-0 text-[0.7rem]">
+      <span className="text-dark-300">{label}</span>
+      <div className="flex items-center gap-1">
+        {btn(true, 'Yes')}
+        {btn(false, 'No')}
+      </div>
+    </div>
+  );
+}
+
+function OptionControl({ label, options, value, onChange }: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex justify-between items-center py-1.5 border-b border-dark-700 last:border-0 text-[0.7rem]">
+      <span className="text-dark-300">{label}</span>
+      <div className="flex items-center gap-1">
+        {options.map(opt => (
+          <button
+            key={opt}
+            onClick={() => onChange(opt)}
+            className={`text-[0.6rem] px-2 py-0.5 rounded border cursor-pointer transition-all uppercase tracking-wider ${opt === value ? 'border-neon-300 text-neon-300 bg-neon-300/10' : 'border-dark-400 text-dark-200'}`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function AutomationTab({ state, setState, addLog }: Props) {
   const hasLinter = state.lintOwned > 0;
   const showPuzzle = state.totalLinesEver >= 50000 && state.lintOwned >= 1;
 
   return (
-    <div>
-      <div className="glass-card p-3 mb-3">
+    <div className="space-y-3">
+      <div className="glass-card p-3">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider">Auto Editors</h3>
+          <ToggleControl label="" value={state.autoEditors.enabled} onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, enabled: v } })} />
+        </div>
+        <OptionControl label="Buy Mode" options={['1x', 'max']} value={state.autoEditors.buyMode} onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, buyMode: v as '1x' | 'max' } })} />
+        <StepperControl label="Money Reserve" value={state.autoEditors.moneyReservePct} min={0} max={100} step={5} suffix="%" onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, moneyReservePct: v } })} />
+        <StepperControl label="Interval" value={state.autoEditors.intervalSec} min={1} max={60} step={1} suffix="s" onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, intervalSec: v } })} />
+        <ToggleControl label="Buy Cheapest" value={state.autoEditors.buyCheapest} onChange={v => setState({ ...state, autoEditors: { ...state.autoEditors, buyCheapest: v } })} />
+      </div>
+
+      <div className="glass-card p-3">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider">Auto Upgrades</h3>
+          <ToggleControl label="" value={state.autoUpgrades.enabled} onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, enabled: v } })} />
+        </div>
+        <StepperControl label="Money Reserve" value={state.autoUpgrades.moneyReservePct} min={0} max={100} step={5} suffix="%" onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, moneyReservePct: v } })} />
+        <StepperControl label="Vibe Reserve" value={state.autoUpgrades.vibeReservePct} min={0} max={100} step={5} suffix="%" onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, vibeReservePct: v } })} />
+        <StepperControl label="Interval" value={state.autoUpgrades.intervalSec} min={1} max={60} step={1} suffix="s" onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, intervalSec: v } })} />
+        <ToggleControl label="Buy Cheapest" value={state.autoUpgrades.buyCheapest} onChange={v => setState({ ...state, autoUpgrades: { ...state.autoUpgrades, buyCheapest: v } })} />
+      </div>
+
+      <div className="glass-card p-3">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider">Auto Ascension</h3>
+          <ToggleControl label="" value={state.autoAscension.enabled} onChange={v => setState({ ...state, autoAscension: { ...state.autoAscension, enabled: v } })} />
+        </div>
+        <StepperControl label="Threshold Mult" value={state.autoAscension.thresholdMultiplier} min={1} max={100} step={1} suffix="x" onChange={v => setState({ ...state, autoAscension: { ...state.autoAscension, thresholdMultiplier: v } })} />
+        <StepperControl label="Min Run Time" value={state.autoAscension.minimumRunTimeSec} min={30} max={3600} step={30} suffix="s" onChange={v => setState({ ...state, autoAscension: { ...state.autoAscension, minimumRunTimeSec: v } })} />
+        <StepperControl label="Interval" value={state.autoAscension.intervalSec} min={1} max={60} step={1} suffix="s" onChange={v => setState({ ...state, autoAscension: { ...state.autoAscension, intervalSec: v } })} />
+      </div>
+
+      <div className="glass-card p-3">
         <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider mb-2">Auto-Linter Status</h3>
         {hasLinter ? (
           <div className="space-y-1 text-[0.7rem] text-dark-200">
@@ -42,7 +150,7 @@ function MilestoneBar({ level }: { level: number }) {
   );
 }
 
-function DarkWebPuzzle({ state, addLog }: Props) {
+function DarkWebPuzzle({ state, addLog }: { state: GameState; addLog: (msg: string) => void }) {
   const [target, setTarget] = useState(0);
   const [choices, setChoices] = useState<number[]>([]);
   const [solved, setSolved] = useState(state.darkWebMultiplier);

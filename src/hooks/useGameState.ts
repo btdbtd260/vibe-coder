@@ -7,6 +7,20 @@ import { computeOfflineProgress } from '../utils/offlineProgress';
 const STORAGE_KEY = 'vibe_coder_save';
 const BACKUP_KEY = 'vibe_coder_save_backup';
 
+export interface OfflineGains {
+  elapsedMs: number;
+  gainedLines: number;
+  gainedMoney: number;
+}
+
+let _lastOfflineGains: OfflineGains | null = null;
+
+export function getLastOfflineGains(): OfflineGains | null {
+  const g = _lastOfflineGains;
+  _lastOfflineGains = null;
+  return g;
+}
+
 function backupCurrentSave() {
   const current = localStorage.getItem(STORAGE_KEY);
   if (current !== null) {
@@ -28,14 +42,26 @@ function tryLoadFromKey(key: string, defaultState: GameState): GameState | null 
 
 export function loadState(defaultState: GameState, now?: number): GameState {
   const applyOffline = (loaded: GameState): GameState => {
-    if (loaded.lastSavedAt <= 0) return loaded;
+    if (loaded.lastSavedAt <= 0) {
+      _lastOfflineGains = null;
+      return loaded;
+    }
     const _now = now ?? Date.now();
     if (!loaded.offlineProgressEnabled) {
+      _lastOfflineGains = null;
       return { ...loaded, lastSavedAt: _now };
     }
     const elapsed = _now - loaded.lastSavedAt;
+    const before = { lines: loaded.lines, money: loaded.money };
     const result = computeOfflineProgress(loaded, elapsed);
     result.lastSavedAt = _now;
+    const gainedLines = result.lines - before.lines;
+    const gainedMoney = result.money - before.money;
+    if (gainedLines > 0 || gainedMoney > 0) {
+      _lastOfflineGains = { elapsedMs: Math.min(elapsed, 86_400_000), gainedLines, gainedMoney };
+    } else {
+      _lastOfflineGains = null;
+    }
     return result;
   };
 

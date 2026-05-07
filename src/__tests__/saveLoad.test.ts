@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { defaultState } from '../types/game';
-import { loadState, saveState, debouncedSave, serializeState, deserializeState } from '../hooks/useGameState';
+import { loadState, saveState, debouncedSave, serializeState, deserializeState, getLastOfflineGains } from '../hooks/useGameState';
 import { CURRENT_SAVE_VERSION } from '../utils/migrations';
 import { computeOfflineProgress } from '../utils/offlineProgress';
 
@@ -398,5 +398,57 @@ describe('offline progress on load', () => {
     saveState(saved);
     const loaded = loadState(defaultState);
     expect(loaded.offlineProgressEnabled).toBe(false);
+  });
+});
+
+describe('offline gains capture', () => {
+  it('captures positive gains when enabled and lastSavedAt > 0', () => {
+    const saved = { ...defaultState, lastSavedAt: 1000, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    loadState(defaultState, 6000);
+    const gains = getLastOfflineGains();
+    expect(gains).not.toBeNull();
+    expect(gains!.gainedLines).toBeGreaterThan(0);
+    expect(gains!.gainedMoney).toBeGreaterThan(0);
+    expect(gains!.elapsedMs).toBe(5000);
+  });
+
+  it('returns null when offline progress is disabled', () => {
+    const saved = { ...defaultState, lastSavedAt: 1000, offlineProgressEnabled: false, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    loadState(defaultState, 6000);
+    expect(getLastOfflineGains()).toBeNull();
+  });
+
+  it('returns null when lastSavedAt is 0', () => {
+    const saved = { ...defaultState, lastSavedAt: 0 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    loadState(defaultState, 6000);
+    expect(getLastOfflineGains()).toBeNull();
+  });
+
+  it('second call to getLastOfflineGains returns null', () => {
+    const saved = { ...defaultState, lastSavedAt: 1000, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    loadState(defaultState, 6000);
+    expect(getLastOfflineGains()).not.toBeNull();
+    expect(getLastOfflineGains()).toBeNull();
+  });
+
+  it('backup restore captures gains', () => {
+    localStorage.removeItem('vibe_coder_save');
+    const saved = { ...defaultState, lastSavedAt: 1000, lintOwned: 10, lintMilestoneBoost: 2 };
+    localStorage.setItem('vibe_coder_save_backup', JSON.stringify(saved));
+    loadState(defaultState, 6000);
+    const gains = getLastOfflineGains();
+    expect(gains).not.toBeNull();
+    expect(gains!.gainedLines).toBeGreaterThan(0);
+  });
+
+  it('returns null when elapsed time yields zero gains', () => {
+    const saved = { ...defaultState, lastSavedAt: 5000 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(saved));
+    loadState(defaultState, 5000);
+    expect(getLastOfflineGains()).toBeNull();
   });
 });

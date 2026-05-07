@@ -35,7 +35,8 @@ export function loadState(defaultState: GameState): GameState {
 
 export function saveState(s: GameState) {
   backupCurrentSave();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  const stamped = { ...s, lastSavedAt: Date.now() };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stamped));
 }
 
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -43,7 +44,8 @@ export function debouncedSave(s: GameState) {
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     backupCurrentSave();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    const stamped = { ...s, lastSavedAt: Date.now() };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stamped));
   }, 200);
 }
 

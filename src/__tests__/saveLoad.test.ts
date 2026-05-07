@@ -32,7 +32,8 @@ describe('save/load roundtrip', () => {
     const loaded = loadState(defaultState);
     expect(loaded.lines).toBe(42);
     expect(loaded.money).toBe(999);
-    expect(loaded).toStrictEqual(mutated);
+    expect(loaded.version).toBe(CURRENT_SAVE_VERSION);
+    expect(loaded.lastSavedAt).toBeGreaterThan(0);
   });
 
   it('corrupted JSON returns default state', () => {
@@ -136,7 +137,30 @@ describe('save/load roundtrip', () => {
   it('full defaultState roundtrip preserves all fields', () => {
     saveState(defaultState);
     const loaded = loadState(defaultState);
-    expect(loaded).toStrictEqual(defaultState);
+    expect(loaded.lines).toBe(0);
+    expect(loaded.money).toBe(0);
+    expect(loaded.version).toBe(CURRENT_SAVE_VERSION);
+    expect(loaded.lastSavedAt).toBeGreaterThan(0);
+  });
+
+  it('saveState stamps lastSavedAt with Date.now()', () => {
+    const before = Date.now();
+    saveState({ ...defaultState, lines: 5 });
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(5);
+    expect(loaded.lastSavedAt).toBeGreaterThanOrEqual(before);
+    expect(loaded.lastSavedAt).toBeLessThanOrEqual(Date.now());
+  });
+
+  it('debouncedSave stamps lastSavedAt with Date.now()', () => {
+    vi.useFakeTimers();
+    const before = Date.now();
+    debouncedSave({ ...defaultState, lines: 10 });
+    vi.advanceTimersByTime(200);
+    const loaded = loadState(defaultState);
+    expect(loaded.lines).toBe(10);
+    expect(loaded.lastSavedAt).toBeGreaterThanOrEqual(before);
+    vi.useRealTimers();
   });
 });
 

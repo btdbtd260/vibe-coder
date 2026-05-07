@@ -1,3 +1,26 @@
+export interface AutoEditorSettings {
+  enabled: boolean;
+  buyCheapest: boolean;
+  moneyReservePct: number;
+  buyMode: '1x' | 'max';
+  intervalSec: number;
+}
+
+export interface AutoUpgradeSettings {
+  enabled: boolean;
+  buyCheapest: boolean;
+  moneyReservePct: number;
+  vibeReservePct: number;
+  intervalSec: number;
+}
+
+export interface AutoAscensionSettings {
+  enabled: boolean;
+  thresholdMultiplier: number;
+  minimumRunTimeSec: number;
+  intervalSec: number;
+}
+
 export interface GameState {
   lines: number;
   money: number;
@@ -28,6 +51,11 @@ export interface GameState {
   masteryCodeReview: boolean;
   masteryPairProgram: boolean;
   masterySprintSprint: boolean;
+  masteryStandupSync: boolean;
+  masteryAgileRetro: boolean;
+  masteryRefactorPro: boolean;
+  masteryTestDriven: boolean;
+  masteryShipIt: boolean;
   vibeLevel: number;
   vibeXP: number;
   spentLevels: number;
@@ -59,6 +87,9 @@ export interface GameState {
   sfLevel: number;
   version: number;
   lastSavedAt: number;
+  autoEditors: AutoEditorSettings;
+  autoUpgrades: AutoUpgradeSettings;
+  autoAscension: AutoAscensionSettings;
 }
 
 export const defaultState: GameState = {
@@ -71,7 +102,7 @@ export const defaultState: GameState = {
   premiumParallelDim: false, premiumNeuralLink: false,
   masteryMultiThreaded: false, masteryAlgorithm: false, masteryCloudCredit: false,
   masteryFocusScroll: false, masteryTidyComments: false, masteryCodeReview: false,
-  masteryPairProgram: false, masterySprintSprint: false,
+  masteryPairProgram: false, masterySprintSprint: false, masteryStandupSync: false, masteryAgileRetro: false, masteryRefactorPro: false, masteryTestDriven: false, masteryShipIt: false,
   vibeLevel: 0, vibeXP: 0, spentLevels: 0,
   ascensionMultiplier: 1, ascensionCount: 0, lintMilestoneBoost: 1,
   totalLinesEver: 0, totalClicks: 0, totalPlayedMs: 0, maxLPS: 0,
@@ -87,7 +118,10 @@ export const defaultState: GameState = {
   clickHistory: [],
   currentLPS: 0,
   seniorPoints: 0, totalSeniorPoints: 0,
-  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 4, lastSavedAt: 0,
+  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 8, lastSavedAt: 0,
+  autoEditors: { enabled: false, buyCheapest: true, moneyReservePct: 10, buyMode: '1x', intervalSec: 5 },
+  autoUpgrades: { enabled: false, buyCheapest: true, moneyReservePct: 25, vibeReservePct: 10, intervalSec: 10 },
+  autoAscension: { enabled: false, thresholdMultiplier: 2, minimumRunTimeSec: 300, intervalSec: 30 },
 };
 
 export type BuyMode = '1x' | '10x' | '100x' | 'MAX';

@@ -477,3 +477,82 @@ describe('onboardingSeen', () => {
     expect(loadedTrue.onboardingSeen).toBe(true);
   });
 });
+
+describe('automation settings', () => {
+  it('default automation settings exist', () => {
+    const loaded = loadState(defaultState);
+    expect(loaded.autoEditors.enabled).toBe(false);
+    expect(loaded.autoEditors.buyMode).toBe('1x');
+    expect(loaded.autoEditors.intervalSec).toBe(5);
+    expect(loaded.autoUpgrades.moneyReservePct).toBe(25);
+    expect(loaded.autoUpgrades.vibeReservePct).toBe(10);
+    expect(loaded.autoUpgrades.intervalSec).toBe(10);
+    expect(loaded.autoAscension.thresholdMultiplier).toBe(2);
+    expect(loaded.autoAscension.minimumRunTimeSec).toBe(300);
+    expect(loaded.autoAscension.intervalSec).toBe(30);
+  });
+
+  it('autoEditors roundtrips', () => {
+    const saved = { ...defaultState, autoEditors: { enabled: true, buyCheapest: false, moneyReservePct: 50, buyMode: 'max' as const, intervalSec: 10 } };
+    saveState(saved);
+    const loaded = loadState(defaultState);
+    expect(loaded.autoEditors.enabled).toBe(true);
+    expect(loaded.autoEditors.buyCheapest).toBe(false);
+    expect(loaded.autoEditors.moneyReservePct).toBe(50);
+    expect(loaded.autoEditors.buyMode).toBe('max');
+    expect(loaded.autoEditors.intervalSec).toBe(10);
+  });
+
+  it('autoUpgrades roundtrips', () => {
+    const saved = { ...defaultState, autoUpgrades: { enabled: true, buyCheapest: false, moneyReservePct: 75, vibeReservePct: 20, intervalSec: 30 } };
+    saveState(saved);
+    const loaded = loadState(defaultState);
+    expect(loaded.autoUpgrades.enabled).toBe(true);
+    expect(loaded.autoUpgrades.buyCheapest).toBe(false);
+    expect(loaded.autoUpgrades.moneyReservePct).toBe(75);
+    expect(loaded.autoUpgrades.vibeReservePct).toBe(20);
+    expect(loaded.autoUpgrades.intervalSec).toBe(30);
+  });
+
+  it('autoAscension roundtrips', () => {
+    const saved = { ...defaultState, autoAscension: { enabled: true, thresholdMultiplier: 5, minimumRunTimeSec: 600, intervalSec: 60 } };
+    saveState(saved);
+    const loaded = loadState(defaultState);
+    expect(loaded.autoAscension.enabled).toBe(true);
+    expect(loaded.autoAscension.thresholdMultiplier).toBe(5);
+    expect(loaded.autoAscension.minimumRunTimeSec).toBe(600);
+    expect(loaded.autoAscension.intervalSec).toBe(60);
+  });
+
+  it('partial automation data merges with defaults', () => {
+    const partial = { autoEditors: { enabled: true } };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(partial));
+    const loaded = loadState(defaultState);
+    expect(loaded.autoEditors.enabled).toBe(true);
+    expect(loaded.autoEditors.buyCheapest).toBe(true);
+    expect(loaded.autoEditors.moneyReservePct).toBe(10);
+    expect(loaded.autoEditors.buyMode).toBe('1x');
+  });
+
+  it('corrupted nested automation data falls back to defaults', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ autoEditors: 'bad' }));
+    const loaded = loadState(defaultState);
+    expect(loaded.autoEditors.enabled).toBe(false);
+    expect(loaded.autoEditors.buyMode).toBe('1x');
+  });
+
+  it('invalid autoEditors.buyMode falls back to 1x', () => {
+    const saved = { ...defaultState, autoEditors: { enabled: true, buyCheapest: true, moneyReservePct: 10, buyMode: '100x' as any, intervalSec: 5 } };
+    saveState(saved);
+    const loaded = loadState(defaultState);
+    expect(loaded.autoEditors.buyMode).toBe('1x');
+  });
+
+  it('old save migration preserves valid data and adds automation defaults', () => {
+    const v7Save = { ...defaultState, version: 7 };
+    localStorage.setItem('vibe_coder_save', JSON.stringify(v7Save));
+    const loaded = loadState(defaultState);
+    expect(loaded.autoEditors.enabled).toBe(false);
+    expect(loaded.autoAscension.thresholdMultiplier).toBe(2);
+  });
+});

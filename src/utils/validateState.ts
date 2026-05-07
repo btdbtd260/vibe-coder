@@ -35,7 +35,7 @@ const BOOLEANS: (keyof GameState)[] = [
   'premiumParallelDim', 'premiumNeuralLink',
   'masteryMultiThreaded', 'masteryAlgorithm', 'masteryCloudCredit',
   'masteryFocusScroll', 'masteryTidyComments', 'masteryCodeReview',
-  'masteryPairProgram', 'masterySprintSprint',
+  'masteryPairProgram', 'masterySprintSprint', 'masteryStandupSync', 'masteryAgileRetro', 'masteryRefactorPro', 'masteryTestDriven', 'masteryShipIt',
   'useScientific', 'autoBuyerActive', 'offlineProgressEnabled', 'onboardingSeen',
 ];
 
@@ -90,6 +90,53 @@ export function validateState(
       if (typeof hk[name] === 'string') {
         (result.hotkeys as any)[name] = hk[name];
       }
+    }
+  }
+
+  if (loaded.autoEditors && typeof loaded.autoEditors === 'object' && !Array.isArray(loaded.autoEditors)) {
+    result.autoEditors = { ...result.autoEditors };
+    const ae = loaded.autoEditors as Record<string, unknown>;
+    if (typeof ae.enabled === 'boolean') (result.autoEditors as any).enabled = ae.enabled;
+    if (typeof ae.buyCheapest === 'boolean') (result.autoEditors as any).buyCheapest = ae.buyCheapest;
+    if (isFiniteNum(ae.moneyReservePct) && (ae.moneyReservePct as number) >= 0 && (ae.moneyReservePct as number) <= 100) {
+      (result.autoEditors as any).moneyReservePct = ae.moneyReservePct;
+    }
+    if (typeof ae.buyMode === 'string' && (ae.buyMode === '1x' || ae.buyMode === 'max')) {
+      (result.autoEditors as any).buyMode = ae.buyMode;
+    }
+    if (isFiniteNum(ae.intervalSec) && (ae.intervalSec as number) >= 1) {
+      (result.autoEditors as any).intervalSec = ae.intervalSec;
+    }
+  }
+
+  if (loaded.autoUpgrades && typeof loaded.autoUpgrades === 'object' && !Array.isArray(loaded.autoUpgrades)) {
+    result.autoUpgrades = { ...result.autoUpgrades };
+    const au = loaded.autoUpgrades as Record<string, unknown>;
+    if (typeof au.enabled === 'boolean') (result.autoUpgrades as any).enabled = au.enabled;
+    if (typeof au.buyCheapest === 'boolean') (result.autoUpgrades as any).buyCheapest = au.buyCheapest;
+    if (isFiniteNum(au.moneyReservePct) && (au.moneyReservePct as number) >= 0 && (au.moneyReservePct as number) <= 100) {
+      (result.autoUpgrades as any).moneyReservePct = au.moneyReservePct;
+    }
+    if (isFiniteNum(au.vibeReservePct) && (au.vibeReservePct as number) >= 0 && (au.vibeReservePct as number) <= 100) {
+      (result.autoUpgrades as any).vibeReservePct = au.vibeReservePct;
+    }
+    if (isFiniteNum(au.intervalSec) && (au.intervalSec as number) >= 1) {
+      (result.autoUpgrades as any).intervalSec = au.intervalSec;
+    }
+  }
+
+  if (loaded.autoAscension && typeof loaded.autoAscension === 'object' && !Array.isArray(loaded.autoAscension)) {
+    result.autoAscension = { ...result.autoAscension };
+    const aa = loaded.autoAscension as Record<string, unknown>;
+    if (typeof aa.enabled === 'boolean') (result.autoAscension as any).enabled = aa.enabled;
+    if (isFiniteNum(aa.thresholdMultiplier) && (aa.thresholdMultiplier as number) >= 1) {
+      (result.autoAscension as any).thresholdMultiplier = aa.thresholdMultiplier;
+    }
+    if (isFiniteNum(aa.minimumRunTimeSec) && (aa.minimumRunTimeSec as number) >= 0) {
+      (result.autoAscension as any).minimumRunTimeSec = aa.minimumRunTimeSec;
+    }
+    if (isFiniteNum(aa.intervalSec) && (aa.intervalSec as number) >= 1) {
+      (result.autoAscension as any).intervalSec = aa.intervalSec;
     }
   }
 

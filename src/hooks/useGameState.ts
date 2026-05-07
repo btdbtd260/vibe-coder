@@ -3,6 +3,8 @@ import { automationLPS, xpForLevel, checkMilestones } from '../utils/math';
 import { migrateState, CURRENT_SAVE_VERSION } from '../utils/migrations';
 import { validateState } from '../utils/validateState';
 import { computeOfflineProgress } from '../utils/offlineProgress';
+export { autoBuyEditors } from '../utils/autoEditors';
+export { autoBuyUpgrades } from '../utils/autoUpgrades';
 
 const STORAGE_KEY = 'vibe_coder_save';
 const BACKUP_KEY = 'vibe_coder_save_backup';

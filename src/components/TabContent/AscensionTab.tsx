@@ -26,7 +26,7 @@ export default function AscensionTab({ state, setState, addLog }: Props) {
       emCoffee: false, emStack: false, emDuck: false,
       masteryMultiThreaded: false, masteryAlgorithm: false, masteryCloudCredit: false,
       masteryFocusScroll: false, masteryTidyComments: false, masteryCodeReview: false,
-      masteryPairProgram: false, masterySprintSprint: false,
+      masteryPairProgram: false, masterySprintSprint: false, masteryStandupSync: false, masteryAgileRetro: false, masteryRefactorPro: false, masteryTestDriven: false, masteryShipIt: false,
       premiumHyperThreaded: false, premiumCloudCompute: false, premiumAIOverlord: false,
       premiumEternalLoop: false, premiumQuantumBackup: false, premiumRecursiveCompile: false,
       premiumParallelDim: false, premiumNeuralLink: false,

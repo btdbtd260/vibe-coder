@@ -7,7 +7,7 @@ import { UPGRADE_LORE } from '../../data/tooltips';
 
 interface Props {
   state: GameState;
-  setState: (s: GameState) => void;
+  setState: (s: GameState | ((prev: GameState) => GameState)) => void;
   logs: string[];
   addLog: (msg: string) => void;
 }
@@ -26,32 +26,34 @@ export default function TerminalTab({ state, setState, logs }: Props) {
   };
 
   const buy = (key: keyof GameState, base: number, limit: number | null) => {
-    const owned = state[key] as number;
-    const mode = modes[modeIdx];
-    let c = 1;
-    if (mode === 'MAX') {
-      c = maxAffordable(base, owned, state.money, limit, flux);
-    } else if (mode === '10x') c = 10;
-    else if (mode === '100x') c = 100;
-    if (c <= 0) return;
-    const price = totalCost(base, owned, c, state.masteryCloudCredit, flux);
-    if (state.money < price) return;
-    const next = { ...state, money: state.money - price };
-    (next[key] as number) = owned + c;
-    setState(next);
+    setState(prev => {
+      const owned = prev[key] as number;
+      const mode = modes[prev.buyModeIndex];
+      let c = 1;
+      if (mode === 'MAX') {
+        c = maxAffordable(base, owned, prev.money, limit, prev.fluxOwned);
+      } else if (mode === '10x') c = 10;
+      else if (mode === '100x') c = 100;
+      if (c <= 0) return prev;
+      const price = totalCost(base, owned, c, prev.masteryCloudCredit, prev.fluxOwned);
+      if (prev.money < price) return prev;
+      return { ...prev, money: prev.money - price, [key]: owned + c };
+    });
   };
 
   const buyFlux = () => {
-    const mode = modes[modeIdx];
-    let c = 1;
-    if (mode === 'MAX') {
-      c = maxAffordableFlux(flux, state.money);
-    } else if (mode === '10x') c = 10;
-    else if (mode === '100x') c = 100;
-    if (c <= 0) return;
-    const price = totalFluxCost(flux, c);
-    if (state.money < price) return;
-    setState({ ...state, money: state.money - price, fluxOwned: flux + c });
+    setState(prev => {
+      const mode = modes[prev.buyModeIndex];
+      let c = 1;
+      if (mode === 'MAX') {
+        c = maxAffordableFlux(prev.fluxOwned, prev.money);
+      } else if (mode === '10x') c = 10;
+      else if (mode === '100x') c = 100;
+      if (c <= 0) return prev;
+      const price = totalFluxCost(prev.fluxOwned, c);
+      if (prev.money < price) return prev;
+      return { ...prev, money: prev.money - price, fluxOwned: prev.fluxOwned + c };
+    });
   };
 
   const edCount = modeIdx === 3

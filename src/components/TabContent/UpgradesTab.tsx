@@ -19,6 +19,11 @@ const MASTERIES = [
   { key: 'masteryTidyComments', cost: 1, label: 'Tidy Comments', desc: '+1% money/line' },
   { key: 'masteryCodeReview', cost: 2, label: 'Code Review', desc: '+2% auto speed' },
   { key: 'masteryPairProgram', cost: 2, label: 'Pair Program', desc: '+1% global prod' },
+  { key: 'masteryStandupSync', cost: 2, label: 'Stand-Up Sync', desc: '+2% click & auto' },
+  { key: 'masteryAgileRetro', cost: 2, label: 'Agile Retro', desc: '+2% money/line' },
+  { key: 'masteryRefactorPro', cost: 2, label: 'Refactor Pro', desc: '+2% auto speed' },
+  { key: 'masteryTestDriven', cost: 1, label: 'Test-Driven Dev', desc: '+1% click power' },
+  { key: 'masteryShipIt', cost: 3, label: 'Ship It', desc: '+3% money/line' },
   { key: 'masterySprintSprint', cost: 3, label: 'Sprint Sprint', desc: '+3% click & auto' },
 ];
 

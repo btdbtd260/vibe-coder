@@ -4,12 +4,14 @@ import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS } from '../types/g
 const capOwned = (n: number) => Math.min(n, 5000);
 const capFlux = (n: number) => Math.min(n, 5000);
 const capFluxOwned = (n: number) => Math.min(n, 2000);
+const finite = (n: number, def: number): number =>
+  typeof n === 'number' && Number.isFinite(n) ? n : def;
 
 export const cost = (base: number, owned: number, discount: boolean, flux: number = 0) => {
   const discountMult = discount ? 0.85 : 1;
   const growth = Math.pow(1.12, capOwned(owned));
   const shrink = Math.pow(0.95, capFlux(flux));
-  return Math.max(0.10, discountMult * base * growth * shrink);
+  return finite(Math.max(0.10, discountMult * base * growth * shrink), 0.10);
 };
 
 export const totalCost = (base: number, owned: number, count: number, discount: boolean, flux: number = 0) => {
@@ -24,7 +26,7 @@ export const totalCost = (base: number, owned: number, count: number, discount: 
 };
 
 export const fluxCost = (owned: number) =>
-  Math.max(0.10, 100 * Math.pow(1.25, capFluxOwned(owned)));
+  finite(Math.max(0.10, 100 * Math.pow(1.25, capFluxOwned(owned))), 0.10);
 
 export const totalFluxCost = (owned: number, count: number) => {
   if (count <= 0) return 0;
@@ -41,17 +43,18 @@ export const maxAffordableFlux = (owned: number, money: number) => {
   if (ratio <= 0) return 0;
   let n = Math.floor(Math.log(1 + ratio) / Math.log(1.25));
   n = Math.min(n, 10000);
-  return Math.max(0, n);
+  return finite(Math.max(0, n), 0);
 };
 
-export const xpForLevel = (level: number) => 100 * Math.pow(1.5, level);
+export const xpForLevel = (level: number) => finite(100 * Math.pow(1.5, level), Number.MAX_VALUE);
 
-export const ascensionMult = (totalLines: number) => 1 + Math.sqrt(totalLines / 100_000);
+export const ascensionMult = (totalLines: number) =>
+  finite(1 + Math.sqrt(Math.max(0, totalLines) / 100_000), 1);
 
 export const SENIOR_PRESTIGE_THRESHOLD = 100_000_000;
 
 export const seniorPointsToGain = (totalLines: number) =>
-  Math.floor(Math.sqrt(totalLines / SENIOR_PRESTIGE_THRESHOLD));
+  finite(Math.floor(Math.sqrt(Math.max(0, totalLines) / SENIOR_PRESTIGE_THRESHOLD)), 0);
 
 export const getRetentionRate = (level: number) => level * 0.02;
 

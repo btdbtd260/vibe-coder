@@ -501,3 +501,29 @@ describe('performSeniorPrestige', () => {
     expect(result.spentLevels).toBe(0);
   });
 });
+
+describe('boundary guards', () => {
+  it('xpForLevel guards against Infinity at extreme levels', () => {
+    expect(xpForLevel(2000)).toBe(Number.MAX_VALUE);
+  });
+
+  it('ascensionMult guards against NaN from negative lines', () => {
+    expect(ascensionMult(-1)).toBe(1);
+  });
+
+  it('seniorPointsToGain guards against NaN from negative lines', () => {
+    expect(seniorPointsToGain(-1)).toBe(0);
+  });
+
+  it('cost guards against NaN base', () => {
+    expect(cost(NaN, 0, false, 0)).toBe(0.10);
+  });
+
+  it('fluxCost guards against NaN owned', () => {
+    expect(fluxCost(NaN)).toBe(0.10);
+  });
+
+  it('maxAffordableFlux guards against NaN money', () => {
+    expect(maxAffordableFlux(0, NaN)).toBe(0);
+  });
+});

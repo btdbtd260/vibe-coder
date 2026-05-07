@@ -83,7 +83,7 @@ export default function DevConsoleTab({ state, setState, addLog }: Props) {
       <div className="glass-card p-4 border border-red-500/30">
         <h3 className="text-[0.65rem] text-red-400 uppercase tracking-wider mb-3">Quick Actions</h3>
         <div className="flex flex-wrap gap-2">
-          <DevBtn onClick={() => addLog('DEV: +1Q $') || setState({ ...state, money: state.money + 1e15 })} label="+1Q $" />
+          <DevBtn onClick={() => { addLog('DEV: +1Q $'); setState({ ...state, money: state.money + 1e15 }); }} label="+1Q $" />
           <DevBtn onClick={infMoney} label="Inf $" />
           <DevBtn onClick={() => addLog('DEV: Unlock All')} label="Unlock All" />
         </div>

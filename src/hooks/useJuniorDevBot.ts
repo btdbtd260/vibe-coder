@@ -12,8 +12,8 @@ export function useJuniorDevBot(
       setState(prev => {
         const candidates = [
           { key: 'edOwned' as const, cost: costFn(1, prev.edOwned, prev.masteryCloudCredit, prev.fluxOwned), limit: 5 as const },
-          { key: 'kbOwned' as const, cost: costFn(5, prev.kbOwned, prev.masteryCloudCredit, prev.fluxOwned), limit: null as const },
-          { key: 'lintOwned' as const, cost: costFn(20, prev.lintOwned, prev.masteryCloudCredit, prev.fluxOwned), limit: null as const },
+          { key: 'kbOwned' as const, cost: costFn(5, prev.kbOwned, prev.masteryCloudCredit, prev.fluxOwned), limit: null },
+          { key: 'lintOwned' as const, cost: costFn(20, prev.lintOwned, prev.masteryCloudCredit, prev.fluxOwned), limit: null },
         ].sort((a, b) => a.cost - b.cost);
         const cheapest = candidates[0];
         if (!cheapest || prev.money <= cheapest.cost * 10) return prev;

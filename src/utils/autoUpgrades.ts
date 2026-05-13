@@ -1,5 +1,5 @@
 import type { GameState } from '../types/game';
-import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS } from '../types/game';
+import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS, FLUX_THRESHOLDS, FLUX_COSTS } from '../types/game';
 import { fluxCost, availableLevels } from './math';
 
 const MASTERY_COSTS: { key: string; cost: number }[] = [
@@ -62,6 +62,13 @@ export function autoBuyUpgrades(s: Readonly<GameState>): GameState {
       const cost = LINT_COSTS[s.perkLintTier];
       if (cost <= spendableMoney) {
         candidates.push({ id: 'perkLint', cost, resource: 'money', apply: st => ({ ...st, money: st.money - cost, perkLintTier: st.perkLintTier + 1 }) });
+      }
+    }
+
+    if (s.perkFluxTier < FLUX_THRESHOLDS.length && s.fluxOwned >= FLUX_THRESHOLDS[s.perkFluxTier]) {
+      const cost = FLUX_COSTS[s.perkFluxTier];
+      if (cost <= spendableMoney) {
+        candidates.push({ id: 'perkFlux', cost, resource: 'money', apply: st => ({ ...st, money: st.money - cost, perkFluxTier: st.perkFluxTier + 1 }) });
       }
     }
 

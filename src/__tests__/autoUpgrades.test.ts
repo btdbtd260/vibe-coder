@@ -92,6 +92,13 @@ describe('autoBuyUpgrades', () => {
     expect(result.fluxOwned).toBe(1);
   });
 
+  it('buys Flux perk tier', () => {
+    const s = makeState({ fluxOwned: 25, money: 15000, autoUpgrades: { ...defaultState.autoUpgrades, enabled: true, moneyReservePct: 0 } });
+    const result = autoBuyUpgrades(s);
+    expect(result.perkFluxTier).toBe(1);
+    expect(result.money).toBe(5000);
+  });
+
   it('buys a mastery', () => {
     const s = makeState({ vibeLevel: 2, spentLevels: 0, autoUpgrades: { ...defaultState.autoUpgrades, enabled: true, buyCheapest: false, vibeReservePct: 0 } });
     const result = autoBuyUpgrades(s);

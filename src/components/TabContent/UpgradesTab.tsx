@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { GameState } from '../../types/game';
-import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS } from '../../types/game';
+import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS, FLUX_THRESHOLDS, FLUX_COSTS } from '../../types/game';
 import { formatNum, fluxCost, getVisiblePerkTier } from '../../utils/math';
 
 interface Props {
@@ -59,7 +59,7 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
     setState({ ...state, money: state.money - c, fluxOwned: state.fluxOwned + 1 });
   };
 
-  const buyPerk = (key: 'perkEdTier' | 'perkKbTier' | 'perkLintTier', tier: number, cost: number) => {
+  const buyPerk = (key: 'perkEdTier' | 'perkKbTier' | 'perkLintTier' | 'perkFluxTier', tier: number, cost: number) => {
     if ((state as any)[key] >= tier || state.money < cost) return;
     setState({ ...state, money: state.money - cost, [key]: tier });
   };
@@ -85,7 +85,13 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
       next.money -= LINT_COSTS[lintIdx];
       next.perkLintTier = lintIdx + 1;
     }
-    // Flux
+    // Flux perk
+    const fluxIdx = getVisiblePerkTier(next.fluxOwned, next.money, FLUX_THRESHOLDS, FLUX_COSTS);
+    if (fluxIdx !== null && next.money >= FLUX_COSTS[fluxIdx] && next.perkFluxTier <= fluxIdx) {
+      next.money -= FLUX_COSTS[fluxIdx];
+      next.perkFluxTier = fluxIdx + 1;
+    }
+    // Flux item
     if (next.edOwned >= 5) {
       while (next.money >= fluxCost(next.fluxOwned)) {
         next.money -= fluxCost(next.fluxOwned);
@@ -158,9 +164,9 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
           {(() => {
             const idx = getVisiblePerkTier(state.kbOwned, state.money, KB_THRESHOLDS, KB_COSTS);
             if (idx === null || state.perkKbTier > idx) return null;
-            const names = ['O-Ring Swap', 'Cherry MX', 'Linear Switch', 'Topre Electrostatic', 'Hall Effect', 'Optical Switch', 'Singularity Keyboard'];
+            const names = ['O-Ring Swap', 'Cherry MX', 'Linear Switch', 'Topre Electrostatic', 'Hall Effect', 'Optical Switch', 'Singularity Keyboard', 'Quantum Keyboard', 'Plasma Interface', 'Neural Implant', 'Cosmic Cortex', 'Universal Mind'];
             return (
-              <PerkCard title={names[idx] || 'Keyboard Perk'} desc={`KB click power +${[25, 50, 100, 150, 200, 300, 500][idx]}%`}
+              <PerkCard title={names[idx] || 'Keyboard Perk'} desc={`KB click power +${[25, 50, 100, 150, 200, 300, 500, 800, 1200, 2000, 3400, 5500][idx]}%`}
                 cost={KB_COSTS[idx]} show={state.money >= KB_COSTS[idx] * 0.9}
                 onBuy={() => buyPerk('perkKbTier', idx + 1, KB_COSTS[idx])} />
             );
@@ -170,11 +176,23 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
           {(() => {
             const idx = getVisiblePerkTier(state.lintOwned, state.money, LINT_THRESHOLDS, LINT_COSTS);
             if (idx === null || state.perkLintTier > idx) return null;
-            const names = ['Syntax Sensei', 'Parallel Lint', 'Distributed Lint', 'Sentient Linter', 'Autonomous Refactor', 'Quantum Linter', 'Self-Writing Code'];
+            const names = ['Syntax Sensei', 'Parallel Lint', 'Distributed Lint', 'Sentient Linter', 'Autonomous Refactor', 'Quantum Linter', 'Self-Writing Code', 'AI Overlord', 'Singularity Linter', 'Cosmic Code', 'Universal Syntax', 'Omniscient Compiler'];
             return (
-              <PerkCard title={names[idx] || 'Linter Perk'} desc={`Linter speed +${[25, 50, 100, 150, 200, 300, 500][idx]}%`}
+              <PerkCard title={names[idx] || 'Linter Perk'} desc={`Linter speed +${[25, 50, 100, 150, 200, 300, 500, 800, 1200, 2000, 3400, 5500][idx]}%`}
                 cost={LINT_COSTS[idx]} show={state.money >= LINT_COSTS[idx] * 0.9}
                 onBuy={() => buyPerk('perkLintTier', idx + 1, LINT_COSTS[idx])} />
+            );
+          })()}
+
+          {/* Flux Perk */}
+          {(() => {
+            const idx = getVisiblePerkTier(state.fluxOwned, state.money, FLUX_THRESHOLDS, FLUX_COSTS);
+            if (idx === null || state.perkFluxTier > idx) return null;
+            const names = ['Overclock', 'Sustain', 'Amplify', 'Resonate', 'Harmonize', 'Stabilize', 'Ascend'];
+            return (
+              <PerkCard title={names[idx] || 'Flux Perk'} desc={`Flux power +${[50, 100, 200, 350, 550, 900, 1450][idx]}%`}
+                cost={FLUX_COSTS[idx]} show={state.money >= FLUX_COSTS[idx] * 0.9}
+                onBuy={() => buyPerk('perkFluxTier', idx + 1, FLUX_COSTS[idx])} />
             );
           })()}
 

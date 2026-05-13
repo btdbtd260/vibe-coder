@@ -22,6 +22,7 @@ import ConfigTab from './components/TabContent/ConfigTab';
 import ArchiveTab from './components/TabContent/ArchiveTab';
 import DevConsoleTab from './components/TabContent/DevConsoleTab';
 import SeniorOfficeTab from './components/TabContent/SeniorOfficeTab';
+import FrameworkTab from './components/TabContent/FrameworkTab';
 import { useJuniorDevBot } from './hooks/useJuniorDevBot';
 import { useGameActions } from './hooks/useGameActions';
 import WelcomeBackOverlay from './components/WelcomeBackOverlay';
@@ -33,6 +34,7 @@ const TAB_COMPONENTS: Record<string, React.FC<any>> = {
   automation: AutomationTab,
   ascension: AscensionTab,
   senior: SeniorOfficeTab,
+  framework: FrameworkTab,
   metrics: MetricsTab,
   cloud: CloudShopTab,
   config: ConfigTab,

@@ -50,16 +50,15 @@ describe('cost', () => {
     expect(cost(0.01, 0, false, 0)).toBeGreaterThanOrEqual(0.10);
   });
 
-  it('caps owned growth at 5000', () => {
-    const at5000 = cost(100, 5000, false, 0);
-    const at6000 = cost(100, 6000, false, 0);
-    expect(at6000).toBeCloseTo(at5000, 2);
+  it('increases with owned count', () => {
+    expect(cost(100, 0, false, 0)).toBeLessThan(cost(100, 1, false, 0));
+    expect(cost(100, 100, false, 0)).toBeLessThan(cost(100, 101, false, 0));
+    expect(cost(100, 1000, false, 0)).toBeLessThan(cost(100, 1001, false, 0));
   });
 
-  it('caps flux at 5000', () => {
-    const at5000 = cost(100, 0, false, 5000);
-    const at6000 = cost(100, 0, false, 6000);
-    expect(at6000).toBeCloseTo(at5000, 2);
+  it('increases with flux count reducing cost', () => {
+    expect(cost(100, 0, false, 0)).toBeGreaterThan(cost(100, 0, false, 1));
+    expect(cost(100, 0, false, 100)).toBeGreaterThan(cost(100, 0, false, 101));
   });
 });
 
@@ -97,10 +96,9 @@ describe('fluxCost', () => {
     expect(fluxCost(0)).toBeGreaterThanOrEqual(0.10);
   });
 
-  it('caps owned growth at 2000', () => {
-    const at2000 = fluxCost(2000);
-    const at3000 = fluxCost(3000);
-    expect(at3000).toBeCloseTo(at2000, 2);
+  it('increases with owned count', () => {
+    expect(fluxCost(0)).toBeLessThan(fluxCost(1));
+    expect(fluxCost(100)).toBeLessThan(fluxCost(101));
   });
 });
 
@@ -296,6 +294,20 @@ describe('linesPerClick', () => {
     expect(linesPerClick(makeState({ fluxOwned: 3 }))).toBeCloseTo(1 + 3 * 1.0, 4);
   });
 
+  it('applies flux perk multiplier', () => {
+    const s = makeState({ fluxOwned: 10, perkFluxTier: 1 });
+    const raw = 10 * 1.0;
+    const perkBonus = raw * 0.5;
+    expect(linesPerClick(s)).toBeCloseTo(1 + raw + perkBonus, 4);
+  });
+
+  it('applies higher flux perk tiers', () => {
+    const s = makeState({ fluxOwned: 100, perkFluxTier: 3 });
+    const raw = 100 * 1.0;
+    const perkBonus = raw * 2.0;
+    expect(linesPerClick(s)).toBeCloseTo(1 + raw + perkBonus, 4);
+  });
+
   it('adds kb bonus and scales with perk', () => {
     const s = makeState({ kbOwned: 2, perkKbTier: 1 });
     const result = linesPerClick(s);
@@ -400,10 +412,10 @@ describe('checkMilestones', () => {
     expect(at200).toBeGreaterThan(at100);
   });
 
-  it('caps at 60 bonus doublings past 100', () => {
-    const atExpected = checkMilestones(100 + 60 * 100);
-    const beyond = checkMilestones(100 + 100 * 100);
-    expect(beyond).toBe(atExpected);
+  it('scales past 1000 with pow2 segment every 500', () => {
+    const at1000 = checkMilestones(1000);
+    const at1500 = checkMilestones(1500);
+    expect(at1500).toBeGreaterThan(at1000);
   });
 });
 
@@ -519,6 +531,7 @@ describe('performSeniorPrestige', () => {
   it('gains points and resets progress fields', () => {
     const s = makeState({
       totalLinesEver: 100_000_000,
+      seniorLines: 100_000_000,
       lines: 50_000_000,
       money: 1_000_000,
       edOwned: 5,
@@ -527,6 +540,7 @@ describe('performSeniorPrestige', () => {
     const result = performSeniorPrestige(s);
     expect(result.seniorPoints).toBeGreaterThan(s.seniorPoints);
     expect(result.totalSeniorPoints).toBeGreaterThan(s.totalSeniorPoints);
+    expect(result.seniorLines).toBe(0);
     expect(result.lines).toBeLessThan(s.lines);
     expect(result.money).toBe(0);
     expect(result.edOwned).toBe(0);
@@ -534,7 +548,7 @@ describe('performSeniorPrestige', () => {
   });
 
   it('retains some lines based on retention level', () => {
-    const s = makeState({ totalLinesEver: 100_000_000, lines: 50_000_000, retentionLevel: 10 });
+    const s = makeState({ totalLinesEver: 100_000_000, seniorLines: 100_000_000, lines: 50_000_000, retentionLevel: 10 });
     const result = performSeniorPrestige(s);
     const expectedRetained = Math.floor(s.totalLinesEver * getRetentionRate(10));
     expect(result.lines).toBe(expectedRetained);
@@ -543,6 +557,7 @@ describe('performSeniorPrestige', () => {
   it('resets ascension and vibe state', () => {
     const s = makeState({
       totalLinesEver: 100_000_000,
+      seniorLines: 100_000_000,
       ascensionMultiplier: 100,
       ascensionCount: 10,
       vibeLevel: 50,

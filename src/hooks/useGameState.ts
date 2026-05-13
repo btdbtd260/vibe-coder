@@ -101,6 +101,7 @@ export function writeLines(
   next.lines += count;
   next.money += count * moneyPerLine;
   next.totalLinesEver += count;
+  next.seniorLines += count;
   next.vibeXP += count * xpMultiplier;
   while (next.vibeXP >= xpForLevel(next.vibeLevel)) {
     const needed = xpForLevel(next.vibeLevel);

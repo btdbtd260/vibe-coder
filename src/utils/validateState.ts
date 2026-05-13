@@ -15,13 +15,13 @@ const isBool = (v: unknown): v is boolean =>
 const NUMERIC_GE0: (keyof GameState)[] = [
   'lines', 'money', 'vibeShards',
   'edOwned', 'kbOwned', 'lintOwned', 'fluxOwned',
-  'perkEdTier', 'perkKbTier', 'perkLintTier',
+  'perkEdTier', 'perkKbTier', 'perkLintTier', 'perkFluxTier',
   'vibeLevel', 'vibeXP', 'spentLevels',
   'ascensionCount',
   'totalLinesEver', 'totalClicks', 'totalPlayedMs', 'maxLPS',
   'buyModeIndex', 'darkWebMultiplier',
-  'currentLPS', 'seniorPoints', 'totalSeniorPoints',
-  'retentionLevel', 'sfLevel', 'lastSavedAt',
+  'currentLPS', 'seniorPoints', 'totalSeniorPoints', 'seniorLines',
+  'retentionLevel', 'sfLevel', 'frameworkPoints', 'totalFrameworkPoints', 'frameworkLevel', 'frameworkCodeReview', 'frameworkDevOps', 'lastSavedAt',
 ];
 
 const NUMERIC_GE1: (keyof GameState)[] = [
@@ -41,7 +41,7 @@ const BOOLEANS: (keyof GameState)[] = [
 
 const HOTKEY_NAMES: (keyof GameState['hotkeys'])[] = [
   'click', 'tab_terminal', 'tab_automation', 'tab_ascension',
-  'tab_metrics', 'tab_cloud', 'tab_config', 'tab_archive',
+  'tab_metrics', 'tab_framework', 'tab_cloud', 'tab_config', 'tab_archive',
   'buy_0', 'buy_1', 'buy_2', 'cycle_mode',
 ];
 

@@ -6,6 +6,7 @@ const nav = [
   { id: 'automation', label: 'Auto', icon: Cpu },
   { id: 'ascension', label: 'Ascend', icon: Rocket },
   { id: 'senior', label: 'Senior', icon: Crown },
+  { id: 'framework', label: 'Framework', icon: Crown },
   { id: 'metrics', label: 'Metrics', icon: BarChart3 },
   { id: 'cloud', label: 'Cloud Shop', icon: Cloud },
   { id: 'config', label: 'Config', icon: Settings },

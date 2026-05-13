@@ -9,7 +9,7 @@ interface Props {
 
 export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
   const s = state.useScientific;
-  const gain = seniorPointsToGain(state.totalLinesEver);
+  const gain = seniorPointsToGain(state.seniorLines ?? 0);
   const canPrestige = gain >= 1;
 
   const doPrestige = () => {
@@ -50,9 +50,9 @@ export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
     return (
       <div className="glass-card p-6 text-center">
         <p className="text-[0.65rem] text-dark-400 italic">
-          The Senior Office is locked. Generate {formatNum(SENIOR_PRESTIGE_THRESHOLD, s)} total lines of code to unlock Tier 2 prestige.
+          The Senior Office is locked. Generate {formatNum(SENIOR_PRESTIGE_THRESHOLD, s)} lines in a senior run to unlock Tier 2 prestige.
         </p>
-        <p className="text-[0.55rem] text-dark-500 mt-2">// {formatNum(SENIOR_PRESTIGE_THRESHOLD - state.totalLinesEver, s)} lines remaining</p>
+        <p className="text-[0.55rem] text-dark-500 mt-2">// {formatNum(SENIOR_PRESTIGE_THRESHOLD - (state.seniorLines ?? 0), s)} lines remaining</p>
       </div>
     );
   }
@@ -67,7 +67,7 @@ export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
 
       <button onClick={doPrestige} disabled={!canPrestige}
         className="w-full py-3 rounded-lg border-2 border-neon-300/60 text-neon-300 font-bold text-xs hover:bg-neon-300/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer uppercase tracking-wider transition-all">
-        {canPrestige ? `Senior Prestige — Gain ${formatNum(gain, s)} SP` : `Need ${formatNum(SENIOR_PRESTIGE_THRESHOLD, s)} total lines`}
+        {canPrestige ? `Senior Prestige — Gain ${formatNum(gain, s)} SP` : `Need ${formatNum(SENIOR_PRESTIGE_THRESHOLD, s)} senior run lines`}
       </button>
 
       {state.autoBuyerActive && (

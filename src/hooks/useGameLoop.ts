@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { GameState } from '../types/game';
 import { automationLPS, manualLPS } from '../utils/math';
+import { fromNumber, gt } from '../utils/BigNum';
 
 export function useGameLoop(setState: (s: GameState | ((prev: GameState) => GameState)) => void) {
   useEffect(() => {
@@ -9,8 +10,8 @@ export function useGameLoop(setState: (s: GameState | ((prev: GameState) => Game
         const total = automationLPS(prev) + manualLPS(prev);
         return {
           ...prev,
-          currentLPS: total,
-          maxLPS: Math.max(prev.maxLPS, total),
+          currentLPS: fromNumber(total),
+          maxLPS: gt(fromNumber(total), prev.maxLPS) ? fromNumber(total) : prev.maxLPS,
           totalPlayedMs: prev.totalPlayedMs + 100,
         };
       });

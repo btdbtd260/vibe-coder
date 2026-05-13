@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { GameState } from '../../types/game';
 import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS, FLUX_THRESHOLDS, FLUX_COSTS } from '../../types/game';
 import { formatNum, fluxCost, getVisiblePerkTier } from '../../utils/math';
+import { sub, lt, gte, fromNumber, mul } from '../../utils/BigNum';
+import type { BigNum } from '../../utils/BigNum';
 
 interface Props {
   state: GameState;
@@ -55,46 +57,46 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
 
   const buyFlux = () => {
     const c = fluxCost(state.fluxOwned);
-    if (state.edOwned < 5 || state.money < c) return;
-    setState({ ...state, money: state.money - c, fluxOwned: state.fluxOwned + 1 });
+    if (state.edOwned < 5 || lt(state.money, c)) return;
+    setState({ ...state, money: sub(state.money, c), fluxOwned: state.fluxOwned + 1 });
   };
 
   const buyPerk = (key: 'perkEdTier' | 'perkKbTier' | 'perkLintTier' | 'perkFluxTier', tier: number, cost: number) => {
-    if ((state as any)[key] >= tier || state.money < cost) return;
-    setState({ ...state, money: state.money - cost, [key]: tier });
+    if ((state as any)[key] >= tier || lt(state.money, fromNumber(cost))) return;
+    setState({ ...state, money: sub(state.money, fromNumber(cost)), [key]: tier });
   };
 
   const buyAllPerks = () => {
     let next = { ...state };
     // ED perks
-    if (next.edOwned >= 3 && next.perkEdTier < 1 && next.money >= 500) {
-      next.money -= 500; next.perkEdTier = 1;
+    if (next.edOwned >= 3 && next.perkEdTier < 1 && gte(next.money, fromNumber(500))) {
+      next.money = sub(next.money, fromNumber(500)); next.perkEdTier = 1;
     }
-    if (next.edOwned >= 5 && next.perkEdTier < 2 && next.money >= 2000) {
-      next.money -= 2000; next.perkEdTier = 2;
+    if (next.edOwned >= 5 && next.perkEdTier < 2 && gte(next.money, fromNumber(2000))) {
+      next.money = sub(next.money, fromNumber(2000)); next.perkEdTier = 2;
     }
     // KB perk
     const kbIdx = getVisiblePerkTier(next.kbOwned, next.money, KB_THRESHOLDS, KB_COSTS);
-    if (kbIdx !== null && next.money >= KB_COSTS[kbIdx] && next.perkKbTier <= kbIdx) {
-      next.money -= KB_COSTS[kbIdx];
+    if (kbIdx !== null && gte(next.money, fromNumber(KB_COSTS[kbIdx])) && next.perkKbTier <= kbIdx) {
+      next.money = sub(next.money, fromNumber(KB_COSTS[kbIdx]));
       next.perkKbTier = kbIdx + 1;
     }
     // Lint perk
     const lintIdx = getVisiblePerkTier(next.lintOwned, next.money, LINT_THRESHOLDS, LINT_COSTS);
-    if (lintIdx !== null && next.money >= LINT_COSTS[lintIdx] && next.perkLintTier <= lintIdx) {
-      next.money -= LINT_COSTS[lintIdx];
+    if (lintIdx !== null && gte(next.money, fromNumber(LINT_COSTS[lintIdx])) && next.perkLintTier <= lintIdx) {
+      next.money = sub(next.money, fromNumber(LINT_COSTS[lintIdx]));
       next.perkLintTier = lintIdx + 1;
     }
     // Flux perk
     const fluxIdx = getVisiblePerkTier(next.fluxOwned, next.money, FLUX_THRESHOLDS, FLUX_COSTS);
-    if (fluxIdx !== null && next.money >= FLUX_COSTS[fluxIdx] && next.perkFluxTier <= fluxIdx) {
-      next.money -= FLUX_COSTS[fluxIdx];
+    if (fluxIdx !== null && gte(next.money, fromNumber(FLUX_COSTS[fluxIdx])) && next.perkFluxTier <= fluxIdx) {
+      next.money = sub(next.money, fromNumber(FLUX_COSTS[fluxIdx]));
       next.perkFluxTier = fluxIdx + 1;
     }
     // Flux item
     if (next.edOwned >= 5) {
-      while (next.money >= fluxCost(next.fluxOwned)) {
-        next.money -= fluxCost(next.fluxOwned);
+      while (gte(next.money, fluxCost(next.fluxOwned))) {
+        next.money = sub(next.money, fluxCost(next.fluxOwned));
         next.fluxOwned++;
       }
     }
@@ -153,11 +155,11 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
           {/* ED Perks */}
           {state.edOwned >= 3 && state.perkEdTier < 1 && (
             <PerkCard title="Double Shot" desc="ED click power +25%" cost={500}
-              show={state.money >= 450} onBuy={() => buyPerk('perkEdTier', 1, 500)} />
+              show={gte(state.money, fromNumber(450))} onBuy={() => buyPerk('perkEdTier', 1, 500)} />
           )}
           {state.edOwned >= 5 && state.perkEdTier < 2 && (
             <PerkCard title="Caffeine IV" desc="ED click power +50%" cost={2000}
-              show={state.money >= 1800} onBuy={() => buyPerk('perkEdTier', 2, 2000)} />
+              show={gte(state.money, fromNumber(1800))} onBuy={() => buyPerk('perkEdTier', 2, 2000)} />
           )}
 
           {/* KB Perk */}
@@ -167,7 +169,7 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
             const names = ['O-Ring Swap', 'Cherry MX', 'Linear Switch', 'Topre Electrostatic', 'Hall Effect', 'Optical Switch', 'Singularity Keyboard', 'Quantum Keyboard', 'Plasma Interface', 'Neural Implant', 'Cosmic Cortex', 'Universal Mind'];
             return (
               <PerkCard title={names[idx] || 'Keyboard Perk'} desc={`KB click power +${[25, 50, 100, 150, 200, 300, 500, 800, 1200, 2000, 3400, 5500][idx]}%`}
-                cost={KB_COSTS[idx]} show={state.money >= KB_COSTS[idx] * 0.9}
+                cost={KB_COSTS[idx]} show={gte(state.money, fromNumber(KB_COSTS[idx] * 0.9))}
                 onBuy={() => buyPerk('perkKbTier', idx + 1, KB_COSTS[idx])} />
             );
           })()}
@@ -179,7 +181,7 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
             const names = ['Syntax Sensei', 'Parallel Lint', 'Distributed Lint', 'Sentient Linter', 'Autonomous Refactor', 'Quantum Linter', 'Self-Writing Code', 'AI Overlord', 'Singularity Linter', 'Cosmic Code', 'Universal Syntax', 'Omniscient Compiler'];
             return (
               <PerkCard title={names[idx] || 'Linter Perk'} desc={`Linter speed +${[25, 50, 100, 150, 200, 300, 500, 800, 1200, 2000, 3400, 5500][idx]}%`}
-                cost={LINT_COSTS[idx]} show={state.money >= LINT_COSTS[idx] * 0.9}
+                cost={LINT_COSTS[idx]} show={gte(state.money, fromNumber(LINT_COSTS[idx] * 0.9))}
                 onBuy={() => buyPerk('perkLintTier', idx + 1, LINT_COSTS[idx])} />
             );
           })()}
@@ -191,7 +193,7 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
             const names = ['Overclock', 'Sustain', 'Amplify', 'Resonate', 'Harmonize', 'Stabilize', 'Ascend'];
             return (
               <PerkCard title={names[idx] || 'Flux Perk'} desc={`Flux power +${[50, 100, 200, 350, 550, 900, 1450][idx]}%`}
-                cost={FLUX_COSTS[idx]} show={state.money >= FLUX_COSTS[idx] * 0.9}
+                cost={FLUX_COSTS[idx]} show={gte(state.money, fromNumber(FLUX_COSTS[idx] * 0.9))}
                 onBuy={() => buyPerk('perkFluxTier', idx + 1, FLUX_COSTS[idx])} />
             );
           })()}
@@ -199,7 +201,7 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
           {/* Energy Flux */}
           {state.edOwned >= 5 && (
             <PerkCard title="Energy Flux" desc={`Reduces KB/Lint costs by 5%/level`}
-              cost={fluxCost(state.fluxOwned)} show={state.money >= fluxCost(state.fluxOwned) * 0.9}
+              cost={fluxCost(state.fluxOwned)} show={gte(state.money, mul(fluxCost(state.fluxOwned), fromNumber(0.9)))}
               onBuy={buyFlux} ownedCount={state.fluxOwned} />
           )}
         </div>
@@ -218,7 +220,7 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
 }
 
 function PerkCard({ title, desc, cost, show, onBuy, ownedCount }: {
-  title: string; desc: string; cost: number; show: boolean; onBuy: () => void; ownedCount?: number;
+  title: string; desc: string; cost: number | BigNum; show: boolean; onBuy: () => void; ownedCount?: number;
 }) {
   if (!show) return null;
   return (

@@ -1,3 +1,6 @@
+import type { BigNum } from '../utils/BigNum';
+import { BN_ZERO, BN_ONE } from '../utils/BigNum';
+
 export interface AutoEditorSettings {
   enabled: boolean;
   buyCheapest: boolean;
@@ -22,8 +25,8 @@ export interface AutoAscensionSettings {
 }
 
 export interface GameState {
-  lines: number;
-  money: number;
+  lines: BigNum;
+  money: BigNum;
   vibeShards: number;
   edOwned: number;
   kbOwned: number;
@@ -58,15 +61,15 @@ export interface GameState {
   masteryTestDriven: boolean;
   masteryShipIt: boolean;
   vibeLevel: number;
-  vibeXP: number;
+  vibeXP: BigNum;
   spentLevels: number;
-  ascensionMultiplier: number;
+  ascensionMultiplier: BigNum;
   ascensionCount: number;
   lintMilestoneBoost: number;
-  totalLinesEver: number;
+  totalLinesEver: BigNum;
   totalClicks: number;
   totalPlayedMs: number;
-  maxLPS: number;
+  maxLPS: BigNum;
   useScientific: boolean;
   offlineProgressEnabled: boolean;
   buyModeIndex: number;
@@ -79,11 +82,11 @@ export interface GameState {
   };
   darkWebMultiplier: number;
   clickHistory: number[];
-  currentLPS: number;
+  currentLPS: BigNum;
   seniorPoints: number;
   totalSeniorPoints: number;
   retentionLevel: number;
-  seniorLines: number;
+  seniorLines: BigNum;
   autoBuyerActive: boolean;
   onboardingSeen: boolean;
   sfLevel: number;
@@ -100,7 +103,7 @@ export interface GameState {
 }
 
 export const defaultState: GameState = {
-  lines: 0, money: 0, vibeShards: 0,
+  lines: BN_ZERO, money: BN_ZERO, vibeShards: 0,
   edOwned: 0, kbOwned: 0, lintOwned: 0, fluxOwned: 0,
   emCoffee: false, emStack: false, emDuck: false,
   perkEdTier: 0, perkKbTier: 0, perkLintTier: 0, perkFluxTier: 0,
@@ -110,9 +113,9 @@ export const defaultState: GameState = {
   masteryMultiThreaded: false, masteryAlgorithm: false, masteryCloudCredit: false,
   masteryFocusScroll: false, masteryTidyComments: false, masteryCodeReview: false,
   masteryPairProgram: false, masterySprintSprint: false, masteryStandupSync: false, masteryAgileRetro: false, masteryRefactorPro: false, masteryTestDriven: false, masteryShipIt: false,
-  vibeLevel: 0, vibeXP: 0, spentLevels: 0,
-  ascensionMultiplier: 1, ascensionCount: 0, lintMilestoneBoost: 1,
-  totalLinesEver: 0, totalClicks: 0, totalPlayedMs: 0, maxLPS: 0,
+  vibeLevel: 0, vibeXP: BN_ZERO, spentLevels: 0,
+  ascensionMultiplier: BN_ONE, ascensionCount: 0, lintMilestoneBoost: 1,
+  totalLinesEver: BN_ZERO, totalClicks: 0, totalPlayedMs: 0, maxLPS: BN_ZERO,
   useScientific: false, offlineProgressEnabled: true, buyModeIndex: 0,
   hotkeys: {
     click: ' ',
@@ -123,10 +126,10 @@ export const defaultState: GameState = {
   },
   darkWebMultiplier: 0,
   clickHistory: [],
-  currentLPS: 0,
+  currentLPS: BN_ZERO,
   frameworkPoints: 0, totalFrameworkPoints: 0, frameworkLevel: 0, frameworkCodeReview: 0, frameworkDevOps: 0,
-  seniorPoints: 0, totalSeniorPoints: 0, seniorLines: 0,
-  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 10, lastSavedAt: 0,
+  seniorPoints: 0, totalSeniorPoints: 0, seniorLines: BN_ZERO,
+  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 11, lastSavedAt: 0,
   autoEditors: { enabled: false, buyCheapest: true, moneyReservePct: 10, buyMode: '1x', intervalSec: 5 },
   autoUpgrades: { enabled: false, buyCheapest: true, moneyReservePct: 25, vibeReservePct: 10, intervalSec: 10 },
   autoAscension: { enabled: false, thresholdMultiplier: 2, minimumRunTimeSec: 300, intervalSec: 30 },

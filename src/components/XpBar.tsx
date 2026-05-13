@@ -1,12 +1,13 @@
 import { formatNum, xpForLevel, availableLevels } from '../utils/math';
 import type { GameState } from '../types/game';
+import { toNum } from '../utils/BigNum';
 import { useTooltip } from './ui/TooltipManager';
 import { UPGRADE_LORE } from '../data/tooltips';
 
 export default function XpBar({ state }: { state: GameState }) {
   const s = state.useScientific;
   const needed = xpForLevel(state.vibeLevel);
-  const pct = Math.min((state.vibeXP / needed) * 100, 100);
+  const pct = Math.min((toNum(state.vibeXP) / needed) * 100, 100);
   const tip = useTooltip(UPGRADE_LORE.vibeLevel ? { title: UPGRADE_LORE.vibeLevel.title, long: UPGRADE_LORE.vibeLevel.long, mechanic: UPGRADE_LORE.vibeLevel.mechanic } : null);
 
   return (

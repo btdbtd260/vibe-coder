@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { GameState } from '../../types/game';
+import { add, fromNumber } from '../../utils/BigNum';
 
 interface Props {
   state: GameState;
@@ -14,7 +15,7 @@ export default function DevConsoleTab({ state, setState, addLog }: Props) {
   const addMoney = () => {
     const amt = parseFloat(moneyInput);
     if (isNaN(amt)) return;
-    setState({ ...state, money: state.money + amt });
+    setState({ ...state, money: add(state.money, fromNumber(amt)) });
     addLog(`DEV: Injected $${amt}`);
     setMoneyInput('');
   };
@@ -33,7 +34,8 @@ export default function DevConsoleTab({ state, setState, addLog }: Props) {
   };
 
   const infMoney = () => {
-    setState({ ...state, money: Number.MAX_VALUE });
+    const huge = fromNumber(1e308);
+    setState({ ...state, money: huge });
     addLog('DEV: Infinite Money');
   };
 
@@ -83,7 +85,7 @@ export default function DevConsoleTab({ state, setState, addLog }: Props) {
       <div className="glass-card p-4 border border-red-500/30">
         <h3 className="text-[0.65rem] text-red-400 uppercase tracking-wider mb-3">Quick Actions</h3>
         <div className="flex flex-wrap gap-2">
-          <DevBtn onClick={() => { addLog('DEV: +1Q $'); setState({ ...state, money: state.money + 1e15 }); }} label="+1Q $" />
+          <DevBtn onClick={() => { addLog('DEV: +1Q $'); setState({ ...state, money: add(state.money, fromNumber(1e15)) }); }} label="+1Q $" />
           <DevBtn onClick={infMoney} label="Inf $" />
           <DevBtn onClick={() => addLog('DEV: Unlock All')} label="Unlock All" />
         </div>

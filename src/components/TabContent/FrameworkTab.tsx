@@ -1,5 +1,8 @@
 import type { GameState } from '../../types/game';
+import type { BigNum } from '../../utils/BigNum';
 import { formatNum, FRAMEWORK_PRESTIGE_THRESHOLD, frameworkPointsToGain, performFrameworkPrestige, frameworkCost } from '../../utils/math';
+
+const toNum = (v: BigNum): number => v.m * Math.pow(10, v.e);
 
 interface Props {
   state: GameState;
@@ -24,8 +27,9 @@ export default function FrameworkTab({ state, setState, addLog }: Props) {
     const level = state[key] ?? 0;
     if (level >= 10) return;
     const cost = frameworkCost(level);
-    if ((state.frameworkPoints ?? 0) < cost) return;
-    const next = { ...state, [key]: level + 1, frameworkPoints: state.frameworkPoints - cost };
+    const costNum = toNum(cost);
+    if ((state.frameworkPoints ?? 0) < costNum) return;
+    const next = { ...state, [key]: level + 1, frameworkPoints: state.frameworkPoints - costNum };
     setState(next);
     addLog(`Framework upgrade: ${label} +1`);
   };
@@ -86,7 +90,7 @@ function UpgradeRow({ title, desc, level, maxLevel, cost, points, onBuy }: {
   desc: string;
   level: number;
   maxLevel: number;
-  cost: number;
+  cost: BigNum;
   points: number;
   onBuy: () => void;
 }) {
@@ -100,7 +104,7 @@ function UpgradeRow({ title, desc, level, maxLevel, cost, points, onBuy }: {
       </div>
       <div className="text-right">
         <div className="text-[0.55rem] text-dark-400 mb-1">{maxed ? 'MAXED' : `${formatNum(cost, false)} FP`}</div>
-        <button onClick={onBuy} disabled={maxed || points < cost}
+        <button onClick={onBuy} disabled={maxed || points < toNum(cost)}
           className="text-[0.65rem] px-3 py-1.5 rounded border border-neon-300/40 text-neon-300 hover:bg-neon-300/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-all uppercase tracking-wider">
           {maxed ? 'MAX' : 'Buy'}
         </button>

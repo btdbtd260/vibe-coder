@@ -3,9 +3,12 @@ import { automationLPS, xpForLevel, checkMilestones } from '../utils/math';
 import { migrateState, CURRENT_SAVE_VERSION } from '../utils/migrations';
 import { validateState } from '../utils/validateState';
 import { computeOfflineProgress } from '../utils/offlineProgress';
+import { fromNumber, add, sub, gte, type BigNum } from '../utils/BigNum';
 export { autoBuyEditors } from '../utils/autoEditors';
 export { autoBuyUpgrades } from '../utils/autoUpgrades';
 export { autoAscend } from '../utils/autoAscension';
+
+const toNum = (v: BigNum): number => v.m * Math.pow(10, v.e);
 
 const STORAGE_KEY = 'vibe_coder_save';
 const BACKUP_KEY = 'vibe_coder_save_backup';
@@ -58,8 +61,8 @@ export function loadState(defaultState: GameState, now?: number): GameState {
     const before = { lines: loaded.lines, money: loaded.money };
     const result = computeOfflineProgress(loaded, elapsed);
     result.lastSavedAt = _now;
-    const gainedLines = result.lines - before.lines;
-    const gainedMoney = result.money - before.money;
+    const gainedLines = toNum(sub(result.lines, before.lines));
+    const gainedMoney = toNum(sub(result.money, before.money));
     if (gainedLines > 0 || gainedMoney > 0) {
       _lastOfflineGains = { elapsedMs: Math.min(elapsed, 86_400_000), gainedLines, gainedMoney };
     } else {
@@ -98,14 +101,14 @@ export function writeLines(
   xpMultiplier: number,
 ): GameState {
   const next = { ...s };
-  next.lines += count;
-  next.money += count * moneyPerLine;
-  next.totalLinesEver += count;
-  next.seniorLines += count;
-  next.vibeXP += count * xpMultiplier;
-  while (next.vibeXP >= xpForLevel(next.vibeLevel)) {
-    const needed = xpForLevel(next.vibeLevel);
-    next.vibeXP -= needed;
+  next.lines = add(next.lines, fromNumber(count));
+  next.money = add(next.money, fromNumber(count * moneyPerLine));
+  next.totalLinesEver = add(next.totalLinesEver, fromNumber(count));
+  next.seniorLines = add(next.seniorLines, fromNumber(count));
+  next.vibeXP = add(next.vibeXP, fromNumber(count * xpMultiplier));
+  while (gte(next.vibeXP, fromNumber(xpForLevel(next.vibeLevel)))) {
+    const needed = fromNumber(xpForLevel(next.vibeLevel));
+    next.vibeXP = sub(next.vibeXP, needed);
     next.vibeLevel++;
   }
   const newBoost = checkMilestones(next.lintOwned);

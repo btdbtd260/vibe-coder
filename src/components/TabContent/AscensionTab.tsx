@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { GameState } from '../../types/game';
 import { formatNum, ascensionMult } from '../../utils/math';
+import { toNum, BN_ZERO } from '../../utils/BigNum';
 
 interface Props {
   state: GameState;
@@ -12,16 +13,16 @@ export default function AscensionTab({ state, setState, addLog }: Props) {
   const [show, setShow] = useState(false);
   const s = state.useScientific;
   const newMult = ascensionMult(state.totalLinesEver);
-  const canAscend = state.money >= 1000000;
+  const canAscend = toNum(state.money) >= 1000000;
 
   const ascend = () => {
     const next: GameState = {
       ...state,
       ascensionMultiplier: newMult,
       ascensionCount: state.ascensionCount + 1,
-      lines: 0, money: 0,
+      lines: BN_ZERO, money: BN_ZERO,
       edOwned: 0, kbOwned: 0, lintOwned: 0, fluxOwned: 0,
-      vibeLevel: 0, vibeXP: 0, spentLevels: 0,
+      vibeLevel: 0, vibeXP: BN_ZERO, spentLevels: 0,
       perkEdTier: 0, perkKbTier: 0, perkLintTier: 0,
       emCoffee: false, emStack: false, emDuck: false,
       masteryMultiThreaded: false, masteryAlgorithm: false, masteryCloudCredit: false,
@@ -31,7 +32,7 @@ export default function AscensionTab({ state, setState, addLog }: Props) {
       premiumEternalLoop: false, premiumQuantumBackup: false, premiumRecursiveCompile: false,
       premiumParallelDim: false, premiumNeuralLink: false,
       vibeShards: 0, darkWebMultiplier: 0,
-      lintMilestoneBoost: 1, maxLPS: 0,
+      lintMilestoneBoost: 1, maxLPS: BN_ZERO,
     };
     setState(next);
     setShow(false);
@@ -60,7 +61,7 @@ export default function AscensionTab({ state, setState, addLog }: Props) {
             <div className="space-y-2 text-[0.7rem] text-dark-200 mb-4">
               <div className="flex justify-between"><span>Current Mult</span><span className="text-neon-300">x{formatNum(state.ascensionMultiplier, s)}</span></div>
               <div className="flex justify-between"><span>New Mult</span><span className="text-neon-300">x{formatNum(newMult, s)}</span></div>
-              <div className="flex justify-between"><span>Bonus Mastery</span><span className="text-neon-300">{Math.floor(Math.sqrt(state.totalLinesEver / 1000000))}</span></div>
+              <div className="flex justify-between"><span>Bonus Mastery</span><span className="text-neon-300">{Math.floor(Math.sqrt(toNum(state.totalLinesEver) / 1000000))}</span></div>
             </div>
             <div className="flex gap-2">
               <button onClick={ascend} className="flex-1 py-2.5 rounded border border-neon-300 text-neon-300 text-xs hover:bg-neon-300/10 cursor-pointer uppercase tracking-wider transition-all">Confirm</button>

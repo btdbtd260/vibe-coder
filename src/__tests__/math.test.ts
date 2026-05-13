@@ -26,109 +26,113 @@ import {
   performSeniorPrestige,
 } from '../utils/math';
 import { writeLines } from '../hooks/useGameState';
+import { fromNumber, toNum, BN_ZERO, BN_ONE } from '../utils/BigNum';
 
 const makeState = (overrides: Partial<typeof defaultState> = {}) => ({ ...defaultState, ...overrides });
 
 describe('cost', () => {
   it('returns base cost at owned=0 with no discount/flux', () => {
-    expect(cost(100, 0, false, 0)).toBeCloseTo(100 * Math.pow(1.12, 0), 2);
+    expect(toNum(cost(100, 0, false, 0))).toBeCloseTo(100 * Math.pow(1.12, 0), 2);
   });
 
   it('applies 15% discount when discount=true', () => {
     const withDiscount = cost(100, 0, true, 0);
     const withoutDiscount = cost(100, 0, false, 0);
-    expect(withDiscount).toBeCloseTo(withoutDiscount * 0.85, 2);
+    expect(toNum(withDiscount)).toBeCloseTo(toNum(withoutDiscount) * 0.85, 2);
   });
 
   it('reduces cost with flux', () => {
     const withFlux = cost(100, 0, false, 5);
     const withoutFlux = cost(100, 0, false, 0);
-    expect(withFlux).toBeLessThan(withoutFlux);
+    expect(toNum(withFlux)).toBeLessThan(toNum(withoutFlux));
   });
 
   it('returns at least 0.10', () => {
-    expect(cost(0.01, 0, false, 0)).toBeGreaterThanOrEqual(0.10);
+    expect(toNum(cost(0.01, 0, false, 0))).toBeGreaterThanOrEqual(0.10);
   });
 
   it('increases with owned count', () => {
-    expect(cost(100, 0, false, 0)).toBeLessThan(cost(100, 1, false, 0));
-    expect(cost(100, 100, false, 0)).toBeLessThan(cost(100, 101, false, 0));
-    expect(cost(100, 1000, false, 0)).toBeLessThan(cost(100, 1001, false, 0));
+    expect(toNum(cost(100, 0, false, 0))).toBeLessThan(toNum(cost(100, 1, false, 0)));
+    expect(toNum(cost(100, 100, false, 0))).toBeLessThan(toNum(cost(100, 101, false, 0)));
+    expect(toNum(cost(100, 1000, false, 0))).toBeLessThan(toNum(cost(100, 1001, false, 0)));
   });
 
   it('increases with flux count reducing cost', () => {
-    expect(cost(100, 0, false, 0)).toBeGreaterThan(cost(100, 0, false, 1));
-    expect(cost(100, 0, false, 100)).toBeGreaterThan(cost(100, 0, false, 101));
+    expect(toNum(cost(100, 0, false, 0))).toBeGreaterThan(toNum(cost(100, 0, false, 1)));
+    expect(toNum(cost(100, 0, false, 100))).toBeGreaterThan(toNum(cost(100, 0, false, 101)));
   });
 });
 
 describe('totalCost', () => {
   it('returns 0 for count <= 0', () => {
-    expect(totalCost(100, 0, 0, false)).toBe(0);
-    expect(totalCost(100, 0, -1, false)).toBe(0);
+    expect(totalCost(100, 0, 0, false)).toStrictEqual(BN_ZERO);
+    expect(totalCost(100, 0, -1, false)).toStrictEqual(BN_ZERO);
   });
 
   it('calculates series sum correctly for count=1', () => {
     const single = cost(100, 0, false, 0);
-    expect(totalCost(100, 0, 1, false, 0)).toBeCloseTo(single, 2);
+    expect(toNum(totalCost(100, 0, 1, false, 0))).toBeCloseTo(toNum(single), 2);
   });
 
-  it('caps at 1e300 for extreme values', () => {
+  it('returns very large but finite for extreme values', () => {
     const result = totalCost(1e100, 0, 10000, false, 0);
-    expect(result).toBe(1e300);
+    expect(toNum(result)).toBeGreaterThan(0);
+    expect(Number.isFinite(toNum(result))).toBe(true);
   });
 
   it('returns at least 0.10', () => {
-    expect(totalCost(0.01, 0, 1, false, 0)).toBeGreaterThanOrEqual(0.10);
+    expect(toNum(totalCost(0.01, 0, 1, false, 0))).toBeGreaterThanOrEqual(0.10);
   });
 });
 
 describe('fluxCost', () => {
   it('returns base cost at owned=0', () => {
-    expect(fluxCost(0)).toBeCloseTo(100, 2);
+    expect(toNum(fluxCost(0))).toBeCloseTo(100, 2);
   });
 
   it('grows exponentially with owned', () => {
-    expect(fluxCost(1)).toBeCloseTo(100 * Math.pow(1.25, 1), 2);
+    expect(toNum(fluxCost(1))).toBeCloseTo(100 * Math.pow(1.25, 1), 2);
   });
 
   it('returns at least 0.10', () => {
-    expect(fluxCost(0)).toBeGreaterThanOrEqual(0.10);
+    expect(toNum(fluxCost(0))).toBeGreaterThanOrEqual(0.10);
   });
 
   it('increases with owned count', () => {
-    expect(fluxCost(0)).toBeLessThan(fluxCost(1));
-    expect(fluxCost(100)).toBeLessThan(fluxCost(101));
+    expect(toNum(fluxCost(0))).toBeLessThan(toNum(fluxCost(1)));
+    expect(toNum(fluxCost(100))).toBeLessThan(toNum(fluxCost(101)));
   });
 });
 
 describe('totalFluxCost', () => {
   it('returns 0 for count <= 0', () => {
-    expect(totalFluxCost(0, 0)).toBe(0);
-    expect(totalFluxCost(0, -1)).toBe(0);
+    expect(totalFluxCost(0, 0)).toStrictEqual(BN_ZERO);
+    expect(totalFluxCost(0, -1)).toStrictEqual(BN_ZERO);
   });
 
-  it('caps at 1e300 for extreme values', () => {
-    expect(totalFluxCost(0, 10000)).toBe(1e300);
+  it('returns very large but finite for extreme values', () => {
+    const result = totalFluxCost(0, 10000);
+    expect(toNum(result)).toBeGreaterThan(0);
+    expect(Number.isFinite(toNum(result))).toBe(true);
   });
 
   it('returns at least 0.10', () => {
-    expect(totalFluxCost(0, 1)).toBeGreaterThanOrEqual(0.10);
+    expect(toNum(totalFluxCost(0, 1))).toBeGreaterThanOrEqual(0.10);
   });
 });
 
 describe('maxAffordableFlux', () => {
   it('returns 0 when money is 0', () => {
-    expect(maxAffordableFlux(0, 0)).toBe(0);
+    expect(maxAffordableFlux(0, fromNumber(0))).toBe(0);
   });
 
   it('returns positive count with sufficient money', () => {
-    const count = maxAffordableFlux(0, 10000);
+    const count = maxAffordableFlux(0, fromNumber(10000));
     expect(count).toBeGreaterThan(0);
   });
 
   it('caps at 10000', () => {
-    expect(maxAffordableFlux(0, 1e100)).toBeLessThanOrEqual(10000);
+    expect(maxAffordableFlux(0, fromNumber(1e100))).toBeLessThanOrEqual(10000);
   });
 });
 
@@ -145,29 +149,29 @@ describe('xpForLevel', () => {
 
 describe('ascensionMult', () => {
   it('returns 1 at 0 total lines', () => {
-    expect(ascensionMult(0)).toBe(1);
+    expect(ascensionMult(BN_ZERO)).toStrictEqual(BN_ONE);
   });
 
   it('calculates sqrt formula correctly', () => {
-    expect(ascensionMult(100_000)).toBeCloseTo(1 + Math.sqrt(1), 2);
-    expect(ascensionMult(400_000)).toBeCloseTo(1 + Math.sqrt(4), 2);
-    expect(ascensionMult(900_000)).toBeCloseTo(1 + Math.sqrt(9), 2);
+    expect(toNum(ascensionMult(fromNumber(100_000)))).toBeCloseTo(1 + Math.sqrt(1), 2);
+    expect(toNum(ascensionMult(fromNumber(400_000)))).toBeCloseTo(1 + Math.sqrt(4), 2);
+    expect(toNum(ascensionMult(fromNumber(900_000)))).toBeCloseTo(1 + Math.sqrt(9), 2);
   });
 });
 
 describe('seniorPointsToGain', () => {
   it('returns 0 below threshold', () => {
-    expect(seniorPointsToGain(0)).toBe(0);
-    expect(seniorPointsToGain(50_000_000)).toBe(0);
+    expect(seniorPointsToGain(BN_ZERO)).toBe(0);
+    expect(seniorPointsToGain(fromNumber(50_000_000))).toBe(0);
   });
 
   it('returns 1 at threshold', () => {
-    expect(seniorPointsToGain(100_000_000)).toBe(1);
+    expect(seniorPointsToGain(fromNumber(100_000_000))).toBe(1);
   });
 
   it('scales with sqrt of ratio', () => {
-    expect(seniorPointsToGain(400_000_000)).toBe(2);
-    expect(seniorPointsToGain(900_000_000)).toBe(3);
+    expect(seniorPointsToGain(fromNumber(400_000_000))).toBe(2);
+    expect(seniorPointsToGain(fromNumber(900_000_000))).toBe(3);
   });
 });
 
@@ -234,7 +238,7 @@ describe('clickMultiplier', () => {
   });
 
   it('includes ascension multiplier', () => {
-    expect(clickMultiplier(makeState({ ascensionMultiplier: 5 }))).toBeCloseTo(5, 4);
+    expect(clickMultiplier(makeState({ ascensionMultiplier: fromNumber(5) }))).toBeCloseTo(5, 4);
   });
 
   it('includes AI Overlord bonus', () => {
@@ -277,7 +281,7 @@ describe('autoMultiplier', () => {
   });
 
   it('includes ascension multiplier', () => {
-    expect(autoMultiplier(makeState({ ascensionMultiplier: 3 }))).toBeCloseTo(3, 4);
+    expect(autoMultiplier(makeState({ ascensionMultiplier: fromNumber(3) }))).toBeCloseTo(3, 4);
   });
 });
 
@@ -421,25 +425,25 @@ describe('checkMilestones', () => {
 
 describe('maxAffordable', () => {
   it('returns 0 when money is 0', () => {
-    expect(maxAffordable(100, 0, 0, null, 0)).toBe(0);
+    expect(maxAffordable(100, 0, fromNumber(0), null, 0)).toBe(0);
   });
 
   it('returns 0 when owned >= limit', () => {
-    expect(maxAffordable(100, 5, 10000, 5, 0)).toBe(0);
+    expect(maxAffordable(100, 5, fromNumber(10000), 5, 0)).toBe(0);
   });
 
   it('returns positive count with sufficient money', () => {
-    const count = maxAffordable(1, 0, 1_000_000, null, 0);
+    const count = maxAffordable(1, 0, fromNumber(1_000_000), null, 0);
     expect(count).toBeGreaterThan(0);
   });
 
   it('caps at limit', () => {
-    const count = maxAffordable(1, 0, 1e100, 3, 0);
+    const count = maxAffordable(1, 0, fromNumber(1e100), 3, 0);
     expect(count).toBeLessThanOrEqual(3);
   });
 
   it('caps at 10000', () => {
-    expect(maxAffordable(1, 0, 1e100, null, 0)).toBeLessThanOrEqual(10000);
+    expect(maxAffordable(1, 0, fromNumber(1e100), null, 0)).toBeLessThanOrEqual(10000);
   });
 });
 
@@ -513,16 +517,16 @@ describe('formatMoney', () => {
 
 describe('getVisiblePerkTier', () => {
   it('returns null when owned < first threshold', () => {
-    expect(getVisiblePerkTier(0, 10000, KB_THRESHOLDS, KB_COSTS)).toBeNull();
+    expect(getVisiblePerkTier(0, fromNumber(10000), KB_THRESHOLDS, KB_COSTS)).toBeNull();
   });
 
   it('returns best tier where owned >= threshold and money >= 90% of cost', () => {
-    const result = getVisiblePerkTier(10, 5000, KB_THRESHOLDS, KB_COSTS);
+    const result = getVisiblePerkTier(10, fromNumber(5000), KB_THRESHOLDS, KB_COSTS);
     expect(result).not.toBeNull();
   });
 
   it('respects threshold order', () => {
-    const result = getVisiblePerkTier(200, 1_000_000, KB_THRESHOLDS, KB_COSTS);
+    const result = getVisiblePerkTier(200, fromNumber(1_000_000), KB_THRESHOLDS, KB_COSTS);
     expect(result).not.toBeNull();
   });
 });
@@ -530,45 +534,45 @@ describe('getVisiblePerkTier', () => {
 describe('performSeniorPrestige', () => {
   it('gains points and resets progress fields', () => {
     const s = makeState({
-      totalLinesEver: 100_000_000,
-      seniorLines: 100_000_000,
-      lines: 50_000_000,
-      money: 1_000_000,
+      totalLinesEver: fromNumber(100_000_000),
+      seniorLines: fromNumber(100_000_000),
+      lines: fromNumber(50_000_000),
+      money: fromNumber(1_000_000),
       edOwned: 5,
       kbOwned: 100,
     });
     const result = performSeniorPrestige(s);
     expect(result.seniorPoints).toBeGreaterThan(s.seniorPoints);
     expect(result.totalSeniorPoints).toBeGreaterThan(s.totalSeniorPoints);
-    expect(result.seniorLines).toBe(0);
-    expect(result.lines).toBeLessThan(s.lines);
-    expect(result.money).toBe(0);
+    expect(result.seniorLines).toStrictEqual(BN_ZERO);
+    expect(toNum(result.lines)).toBeLessThan(toNum(s.lines));
+    expect(result.money).toStrictEqual(BN_ZERO);
     expect(result.edOwned).toBe(0);
     expect(result.kbOwned).toBe(0);
   });
 
   it('retains some lines based on retention level', () => {
-    const s = makeState({ totalLinesEver: 100_000_000, seniorLines: 100_000_000, lines: 50_000_000, retentionLevel: 10 });
+    const s = makeState({ totalLinesEver: fromNumber(100_000_000), seniorLines: fromNumber(100_000_000), lines: fromNumber(50_000_000), retentionLevel: 10 });
     const result = performSeniorPrestige(s);
-    const expectedRetained = Math.floor(s.totalLinesEver * getRetentionRate(10));
-    expect(result.lines).toBe(expectedRetained);
+    const expectedRetained = Math.floor(toNum(s.totalLinesEver) * getRetentionRate(10));
+    expect(result.lines).toStrictEqual(fromNumber(expectedRetained));
   });
 
   it('resets ascension and vibe state', () => {
     const s = makeState({
-      totalLinesEver: 100_000_000,
-      seniorLines: 100_000_000,
-      ascensionMultiplier: 100,
+      totalLinesEver: fromNumber(100_000_000),
+      seniorLines: fromNumber(100_000_000),
+      ascensionMultiplier: fromNumber(100),
       ascensionCount: 10,
       vibeLevel: 50,
-      vibeXP: 500,
+      vibeXP: fromNumber(500),
       spentLevels: 20,
     });
     const result = performSeniorPrestige(s);
-    expect(result.ascensionMultiplier).toBe(1);
+    expect(result.ascensionMultiplier).toStrictEqual(BN_ONE);
     expect(result.ascensionCount).toBe(0);
     expect(result.vibeLevel).toBe(0);
-    expect(result.vibeXP).toBe(0);
+    expect(result.vibeXP).toStrictEqual(BN_ZERO);
     expect(result.spentLevels).toBe(0);
   });
 });
@@ -579,41 +583,41 @@ describe('boundary guards', () => {
   });
 
   it('ascensionMult guards against NaN from negative lines', () => {
-    expect(ascensionMult(-1)).toBe(1);
+    expect(ascensionMult(fromNumber(-1))).toStrictEqual(BN_ONE);
   });
 
   it('seniorPointsToGain guards against NaN from negative lines', () => {
-    expect(seniorPointsToGain(-1)).toBe(0);
+    expect(seniorPointsToGain(fromNumber(-1))).toBe(0);
   });
 
   it('cost guards against NaN base', () => {
-    expect(cost(NaN, 0, false, 0)).toBe(0.10);
+    expect(cost(NaN, 0, false, 0)).toStrictEqual(fromNumber(0.10));
   });
 
   it('fluxCost guards against NaN owned', () => {
-    expect(fluxCost(NaN)).toBe(0.10);
+    expect(fluxCost(NaN)).toStrictEqual(fromNumber(0.10));
   });
 
   it('maxAffordableFlux guards against NaN money', () => {
-    expect(maxAffordableFlux(0, NaN)).toBe(0);
+    expect(maxAffordableFlux(0, fromNumber(NaN))).toBe(0);
   });
 });
 
 describe('writeLines crash regression', () => {
   it('handles 1e12 vibeXP gain without freeze and produces valid state', () => {
-    const s = makeState({ vibeLevel: 0, vibeXP: 0 });
+    const s = makeState({ vibeLevel: 0, vibeXP: BN_ZERO });
     const start = Date.now();
     const result = writeLines(s, 1e12, 0.10, 1);
     const elapsed = Date.now() - start;
     expect(elapsed).toBeLessThan(1000);
     expect(Number.isFinite(result.vibeLevel)).toBe(true);
     expect(result.vibeLevel).toBeGreaterThan(0);
-    expect(result.vibeXP).toBeLessThan(xpForLevel(result.vibeLevel));
+    expect(toNum(result.vibeXP)).toBeLessThan(xpForLevel(result.vibeLevel));
   });
 
   it('clickMultiplier guards against Infinity from extreme product', () => {
     const s = makeState({
-      ascensionMultiplier: 1e200,
+      ascensionMultiplier: fromNumber(1e200),
       seniorPoints: 1e100,
       sfLevel: 100,
       premiumHyperThreaded: true,
@@ -630,7 +634,7 @@ describe('writeLines crash regression', () => {
 
   it('linesPerClick guards against Infinity from extreme product', () => {
     const s = makeState({
-      ascensionMultiplier: 1e200,
+      ascensionMultiplier: fromNumber(1e200),
       seniorPoints: 1e100,
       sfLevel: 100,
       kbOwned: 5000,

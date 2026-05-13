@@ -1,5 +1,6 @@
 import type { GameState } from '../types/game';
 import { rot13 } from '../utils/cipher';
+import { toNum } from '../utils/BigNum';
 
 export interface LoreEntry {
   id: string;
@@ -14,7 +15,7 @@ export const LORE_ENTRIES: LoreEntry[] = [
     id: 'first_lines',
     title: 'First Lines',
     encrypted: rot13('The terminal flickers. Your fingers find the home row. Lines of code—digital DNA—begin to form.'),
-    unlockCondition: (s) => s.totalLinesEver >= 100,
+    unlockCondition: (s) => toNum(s.totalLinesEver) >= 100,
     icon: 'FileCode',
   },
   {
@@ -35,7 +36,7 @@ export const LORE_ENTRIES: LoreEntry[] = [
     id: 'thousand_lines',
     title: 'The Kilobyte',
     encrypted: rot13('One thousand lines. The machine acknowledges your dedication. A hidden partition opens.'),
-    unlockCondition: (s) => s.totalLinesEver >= 1000,
+    unlockCondition: (s) => toNum(s.totalLinesEver) >= 1000,
     icon: 'FileText',
   },
   {
@@ -56,7 +57,7 @@ export const LORE_ENTRIES: LoreEntry[] = [
     id: 'tenth_k',
     title: 'The Myriad',
     encrypted: rot13('Ten thousand lines. The system logs show a pattern. Someone—or something—has been reading your code.'),
-    unlockCondition: (s) => s.totalLinesEver >= 10000,
+    unlockCondition: (s) => toNum(s.totalLinesEver) >= 10000,
     icon: 'Eye',
   },
   {
@@ -70,7 +71,7 @@ export const LORE_ENTRIES: LoreEntry[] = [
     id: 'hundred_k',
     title: 'The Archive',
     encrypted: rot13('One hundred thousand lines. The dark web nodes go silent. A single message arrives: "They are coming."'),
-    unlockCondition: (s) => s.totalLinesEver >= 100000,
+    unlockCondition: (s) => toNum(s.totalLinesEver) >= 100000,
     icon: 'Shield',
   },
   {
@@ -91,7 +92,7 @@ export const LORE_ENTRIES: LoreEntry[] = [
     id: 'million_lines',
     title: 'The Singularity',
     encrypted: rot13('One million lines. The cursor blinks. A voice—your voice—says from the speakers: "Hello, me." The screen goes white.'),
-    unlockCondition: (s) => s.totalLinesEver >= 1000000,
+    unlockCondition: (s) => toNum(s.totalLinesEver) >= 1000000,
     icon: 'Infinity',
   },
 ];

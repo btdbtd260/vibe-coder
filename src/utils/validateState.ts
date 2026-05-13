@@ -1,4 +1,6 @@
 import type { GameState } from '../types/game';
+import type { BigNum } from '../utils/BigNum';
+import { fromNumber, BN_ONE, lt } from '../utils/BigNum';
 
 const isFiniteNum = (v: unknown): v is number =>
   typeof v === 'number' && Number.isFinite(v);
@@ -12,20 +14,29 @@ const isPosOrOne = (v: unknown): v is number =>
 const isBool = (v: unknown): v is boolean =>
   typeof v === 'boolean';
 
+const isBigNum = (v: unknown): v is BigNum =>
+  typeof v === 'object' && v !== null && !Array.isArray(v) &&
+  typeof (v as any).m === 'number' && Number.isFinite((v as any).m) && (v as any).m >= 0 &&
+  typeof (v as any).e === 'number' && Number.isInteger((v as any).e) && Number.isFinite((v as any).e);
+
 const NUMERIC_GE0: (keyof GameState)[] = [
-  'lines', 'money', 'vibeShards',
+  'vibeShards',
   'edOwned', 'kbOwned', 'lintOwned', 'fluxOwned',
   'perkEdTier', 'perkKbTier', 'perkLintTier', 'perkFluxTier',
-  'vibeLevel', 'vibeXP', 'spentLevels',
+  'vibeLevel', 'spentLevels',
   'ascensionCount',
-  'totalLinesEver', 'totalClicks', 'totalPlayedMs', 'maxLPS',
+  'totalClicks', 'totalPlayedMs',
   'buyModeIndex', 'darkWebMultiplier',
-  'currentLPS', 'seniorPoints', 'totalSeniorPoints', 'seniorLines',
+  'seniorPoints', 'totalSeniorPoints',
   'retentionLevel', 'sfLevel', 'frameworkPoints', 'totalFrameworkPoints', 'frameworkLevel', 'frameworkCodeReview', 'frameworkDevOps', 'lastSavedAt',
 ];
 
 const NUMERIC_GE1: (keyof GameState)[] = [
-  'ascensionMultiplier', 'lintMilestoneBoost',
+  'lintMilestoneBoost',
+];
+
+const BIG_NUM_FIELDS: (keyof GameState)[] = [
+  'lines', 'money', 'vibeXP', 'totalLinesEver', 'seniorLines', 'currentLPS', 'maxLPS', 'ascensionMultiplier',
 ];
 
 const BOOLEANS: (keyof GameState)[] = [
@@ -71,6 +82,19 @@ export function validateState(
     if (isBool(loaded[key])) {
       (result as any)[key] = loaded[key];
     }
+  }
+
+  for (const key of BIG_NUM_FIELDS) {
+    if (isBigNum(loaded[key])) {
+      (result as any)[key] = loaded[key];
+    } else if (typeof loaded[key] === 'number') {
+      (result as any)[key] = fromNumber(loaded[key] as number);
+    }
+  }
+
+  // Ensure ascensionMultiplier is at least 1
+  if (lt(result.ascensionMultiplier, BN_ONE)) {
+    result.ascensionMultiplier = BN_ONE;
   }
 
   if (isPosOrZero(loaded.version) && Number.isInteger(loaded.version)) {

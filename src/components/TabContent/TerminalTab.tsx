@@ -4,6 +4,7 @@ import { writeLines } from '../../hooks/useGameState';
 import { Terminal as TerminalIcon } from 'lucide-react';
 import { useTooltip } from '../ui/TooltipManager';
 import { UPGRADE_LORE } from '../../data/tooltips';
+import { sub, lt, gt } from '../../utils/BigNum';
 
 interface Props {
   state: GameState;
@@ -36,8 +37,8 @@ export default function TerminalTab({ state, setState, logs }: Props) {
       else if (mode === '100x') c = 100;
       if (c <= 0) return prev;
       const price = totalCost(base, owned, c, prev.masteryCloudCredit, prev.fluxOwned);
-      if (prev.money < price) return prev;
-      return { ...prev, money: prev.money - price, [key]: owned + c };
+      if (lt(prev.money, price)) return prev;
+      return { ...prev, money: sub(prev.money, price), [key]: owned + c };
     });
   };
 
@@ -51,13 +52,13 @@ export default function TerminalTab({ state, setState, logs }: Props) {
       else if (mode === '100x') c = 100;
       if (c <= 0) return prev;
       const price = totalFluxCost(prev.fluxOwned, c);
-      if (prev.money < price) return prev;
-      return { ...prev, money: prev.money - price, fluxOwned: prev.fluxOwned + c };
+      if (lt(prev.money, price)) return prev;
+      return { ...prev, money: sub(prev.money, price), fluxOwned: prev.fluxOwned + c };
     });
   };
 
   const edCount = modeIdx === 3
-    ? (() => { let n = 0; while (true) { if (state.edOwned + n >= 5) break; if (totalCost(1, state.edOwned, n + 1, state.masteryCloudCredit, flux) > state.money) break; n++; } return n; })()
+    ? (() => { let n = 0; while (true) { if (state.edOwned + n >= 5) break; if (gt(totalCost(1, state.edOwned, n + 1, state.masteryCloudCredit, flux), state.money)) break; n++; } return n; })()
     : state.edOwned >= 5 ? 0 : (modeIdx === 1 ? 10 : modeIdx === 2 ? 100 : 1);
   const kbCount = modeIdx === 3
     ? maxAffordable(5, state.kbOwned, state.money, null, flux)

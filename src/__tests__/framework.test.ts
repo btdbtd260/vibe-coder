@@ -7,6 +7,7 @@ import {
   frameworkCost,
   performFrameworkPrestige,
 } from '../utils/math';
+import { fromNumber, toNum, BN_ZERO } from '../utils/BigNum';
 
 const makeState = (overrides: Partial<GameState> = {}): GameState =>
   ({ ...defaultState, ...overrides });
@@ -45,16 +46,16 @@ describe('frameworkPointsToGain', () => {
 
 describe('frameworkCost', () => {
   it('returns base cost at level 0', () => {
-    expect(frameworkCost(0)).toBeCloseTo(1, 2);
+    expect(toNum(frameworkCost(0))).toBeCloseTo(1, 2);
   });
 
   it('grows exponentially with level', () => {
-    expect(frameworkCost(1)).toBeCloseTo(1 * Math.pow(1.5, 1), 2);
-    expect(frameworkCost(2)).toBeCloseTo(1 * Math.pow(1.5, 2), 2);
+    expect(toNum(frameworkCost(1))).toBeCloseTo(1 * Math.pow(1.5, 1), 2);
+    expect(toNum(frameworkCost(2))).toBeCloseTo(1 * Math.pow(1.5, 2), 2);
   });
 
   it('returns at least 0.10', () => {
-    expect(frameworkCost(-1)).toBeGreaterThanOrEqual(0.10);
+    expect(toNum(frameworkCost(-1))).toBeGreaterThanOrEqual(0.10);
   });
 });
 
@@ -68,8 +69,8 @@ describe('performFrameworkPrestige', () => {
   it('resets lines, money, editors, perks, masteries, levels, senior progress', () => {
     const s = makeState({
       totalSeniorPoints: 400,
-      lines: 999999,
-      money: 999999,
+      lines: fromNumber(999999),
+      money: fromNumber(999999),
       edOwned: 5,
       kbOwned: 100,
       lintOwned: 50,
@@ -89,17 +90,17 @@ describe('performFrameworkPrestige', () => {
       vibeShards: 50,
       darkWebMultiplier: 0.5,
       lintMilestoneBoost: 256,
-      maxLPS: 9999,
+      maxLPS: fromNumber(9999),
     });
     const result = performFrameworkPrestige(s);
-    expect(result.lines).toBe(0);
-    expect(result.money).toBe(0);
+    expect(result.lines).toStrictEqual(BN_ZERO);
+    expect(result.money).toStrictEqual(BN_ZERO);
     expect(result.edOwned).toBe(0);
     expect(result.kbOwned).toBe(0);
     expect(result.lintOwned).toBe(0);
     expect(result.fluxOwned).toBe(0);
     expect(result.vibeLevel).toBe(0);
-    expect(result.vibeXP).toBe(0);
+    expect(result.vibeXP).toStrictEqual(BN_ZERO);
     expect(result.spentLevels).toBe(0);
     expect(result.perkEdTier).toBe(0);
     expect(result.perkKbTier).toBe(0);
@@ -115,7 +116,7 @@ describe('performFrameworkPrestige', () => {
     expect(result.vibeShards).toBe(0);
     expect(result.darkWebMultiplier).toBe(0);
     expect(result.lintMilestoneBoost).toBe(1);
-    expect(result.maxLPS).toBe(0);
+    expect(result.maxLPS).toStrictEqual(BN_ZERO);
   });
 
   it('grants framework points based on totalSeniorPoints', () => {
@@ -153,14 +154,14 @@ describe('performFrameworkPrestige', () => {
   it('preserves persistent fields', () => {
     const s = makeState({
       totalSeniorPoints: 400,
-      totalLinesEver: 500_000_000,
+      totalLinesEver: fromNumber(500_000_000),
       totalClicks: 10000,
       totalPlayedMs: 3600000,
       useScientific: true,
       ascensionCount: 5,
     });
     const result = performFrameworkPrestige(s);
-    expect(result.totalLinesEver).toBe(500_000_000);
+    expect(result.totalLinesEver).toStrictEqual(fromNumber(500_000_000));
     expect(result.totalClicks).toBe(10000);
     expect(result.totalPlayedMs).toBe(3600000);
     expect(result.useScientific).toBe(true);
@@ -170,14 +171,14 @@ describe('performFrameworkPrestige', () => {
   it('input state is not mutated', () => {
     const s = makeState({
       totalSeniorPoints: 400,
-      lines: 5000,
-      money: 1000,
+      lines: fromNumber(5000),
+      money: fromNumber(1000),
       frameworkPoints: 0,
     });
     const before = { lines: s.lines, money: s.money, frameworkPoints: s.frameworkPoints };
     performFrameworkPrestige(s);
-    expect(s.lines).toBe(before.lines);
-    expect(s.money).toBe(before.money);
+    expect(s.lines).toStrictEqual(before.lines);
+    expect(s.money).toStrictEqual(before.money);
     expect(s.frameworkPoints).toBe(before.frameworkPoints);
   });
 });

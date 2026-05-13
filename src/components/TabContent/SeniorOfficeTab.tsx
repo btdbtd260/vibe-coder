@@ -1,5 +1,6 @@
 import type { GameState } from '../../types/game';
 import { formatNum, seniorPointsToGain, performSeniorPrestige, SENIOR_PRESTIGE_THRESHOLD } from '../../utils/math';
+import { toNum, BN_ZERO } from '../../utils/BigNum';
 
 interface Props {
   state: GameState;
@@ -9,7 +10,7 @@ interface Props {
 
 export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
   const s = state.useScientific;
-  const gain = seniorPointsToGain(state.seniorLines ?? 0);
+  const gain = seniorPointsToGain(state.seniorLines ?? BN_ZERO);
   const canPrestige = gain >= 1;
 
   const doPrestige = () => {
@@ -52,7 +53,7 @@ export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
         <p className="text-[0.65rem] text-dark-400 italic">
           The Senior Office is locked. Generate {formatNum(SENIOR_PRESTIGE_THRESHOLD, s)} lines in a senior run to unlock Tier 2 prestige.
         </p>
-        <p className="text-[0.55rem] text-dark-500 mt-2">// {formatNum(SENIOR_PRESTIGE_THRESHOLD - (state.seniorLines ?? 0), s)} lines remaining</p>
+        <p className="text-[0.55rem] text-dark-500 mt-2">// {formatNum(SENIOR_PRESTIGE_THRESHOLD - toNum(state.seniorLines ?? BN_ZERO), s)} lines remaining</p>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { GameState } from '../../types/game';
 import { formatNum } from '../../utils/math';
+import { toNum } from '../../utils/BigNum';
 
 interface Props {
   state: GameState;
@@ -131,7 +132,7 @@ function IntervalInputControl({ label, value, onChange, min = 1 }: {
 
 export default function AutomationTab({ state, setState, addLog }: Props) {
   const hasLinter = state.lintOwned > 0;
-  const showPuzzle = state.totalLinesEver >= 50000 && state.lintOwned >= 1;
+  const showPuzzle = toNum(state.totalLinesEver) >= 50000 && state.lintOwned >= 1;
 
   return (
     <div className="space-y-3">

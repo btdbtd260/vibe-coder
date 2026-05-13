@@ -1,6 +1,7 @@
 import type { GameState } from '../types/game';
 import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS, FLUX_THRESHOLDS, FLUX_COSTS } from '../types/game';
 import { fluxCost, availableLevels } from './math';
+import { BN_ZERO, mul, sub, fromNumber, gte, gt, lt, eq, type BigNum } from './BigNum';
 
 const MASTERY_COSTS: { key: string; cost: number }[] = [
   { key: 'masteryMultiThreaded', cost: 2 },
@@ -20,7 +21,7 @@ const MASTERY_COSTS: { key: string; cost: number }[] = [
 
 interface UpgradeCandidate {
   id: string;
-  cost: number;
+  cost: BigNum;
   resource: 'money' | 'level';
   apply: (s: GameState) => GameState;
 }
@@ -29,53 +30,53 @@ export function autoBuyUpgrades(s: Readonly<GameState>): GameState {
   const au = s.autoUpgrades;
   if (!au.enabled) return { ...s };
 
-  const spendableMoney = s.money * (1 - au.moneyReservePct / 100);
+  const spendableMoney = mul(s.money, fromNumber(1 - au.moneyReservePct / 100));
   const spendableLevels = availableLevels(s) * (1 - au.vibeReservePct / 100);
 
-  if (spendableMoney <= 0 && spendableLevels <= 0) return { ...s };
+  if (eq(spendableMoney, BN_ZERO) && spendableLevels <= 0) return { ...s };
 
   const candidates: UpgradeCandidate[] = [];
 
-  if (spendableMoney > 0) {
+  if (gt(spendableMoney, BN_ZERO)) {
     if (s.perkEdTier < 1 && s.edOwned >= 3) {
-      const cost = 500;
-      if (cost <= spendableMoney) {
-        candidates.push({ id: 'perkEdTier1', cost, resource: 'money', apply: st => ({ ...st, money: st.money - cost, perkEdTier: 1 }) });
+      const rawCost = 500;
+      if (gte(spendableMoney, fromNumber(rawCost))) {
+        candidates.push({ id: 'perkEdTier1', cost: fromNumber(rawCost), resource: 'money', apply: st => ({ ...st, money: sub(st.money, fromNumber(rawCost)), perkEdTier: 1 }) });
       }
     }
 
     if (s.perkEdTier < 2 && s.edOwned >= 5) {
-      const cost = 2000;
-      if (cost <= spendableMoney) {
-        candidates.push({ id: 'perkEdTier2', cost, resource: 'money', apply: st => ({ ...st, money: st.money - cost, perkEdTier: 2 }) });
+      const rawCost = 2000;
+      if (gte(spendableMoney, fromNumber(rawCost))) {
+        candidates.push({ id: 'perkEdTier2', cost: fromNumber(rawCost), resource: 'money', apply: st => ({ ...st, money: sub(st.money, fromNumber(rawCost)), perkEdTier: 2 }) });
       }
     }
 
     if (s.perkKbTier < KB_THRESHOLDS.length && s.kbOwned >= KB_THRESHOLDS[s.perkKbTier]) {
-      const cost = KB_COSTS[s.perkKbTier];
-      if (cost <= spendableMoney) {
-        candidates.push({ id: 'perkKb', cost, resource: 'money', apply: st => ({ ...st, money: st.money - cost, perkKbTier: st.perkKbTier + 1 }) });
+      const rawCost = KB_COSTS[s.perkKbTier];
+      if (gte(spendableMoney, fromNumber(rawCost))) {
+        candidates.push({ id: 'perkKb', cost: fromNumber(rawCost), resource: 'money', apply: st => ({ ...st, money: sub(st.money, fromNumber(rawCost)), perkKbTier: st.perkKbTier + 1 }) });
       }
     }
 
     if (s.perkLintTier < LINT_THRESHOLDS.length && s.lintOwned >= LINT_THRESHOLDS[s.perkLintTier]) {
-      const cost = LINT_COSTS[s.perkLintTier];
-      if (cost <= spendableMoney) {
-        candidates.push({ id: 'perkLint', cost, resource: 'money', apply: st => ({ ...st, money: st.money - cost, perkLintTier: st.perkLintTier + 1 }) });
+      const rawCost = LINT_COSTS[s.perkLintTier];
+      if (gte(spendableMoney, fromNumber(rawCost))) {
+        candidates.push({ id: 'perkLint', cost: fromNumber(rawCost), resource: 'money', apply: st => ({ ...st, money: sub(st.money, fromNumber(rawCost)), perkLintTier: st.perkLintTier + 1 }) });
       }
     }
 
     if (s.perkFluxTier < FLUX_THRESHOLDS.length && s.fluxOwned >= FLUX_THRESHOLDS[s.perkFluxTier]) {
-      const cost = FLUX_COSTS[s.perkFluxTier];
-      if (cost <= spendableMoney) {
-        candidates.push({ id: 'perkFlux', cost, resource: 'money', apply: st => ({ ...st, money: st.money - cost, perkFluxTier: st.perkFluxTier + 1 }) });
+      const rawCost = FLUX_COSTS[s.perkFluxTier];
+      if (gte(spendableMoney, fromNumber(rawCost))) {
+        candidates.push({ id: 'perkFlux', cost: fromNumber(rawCost), resource: 'money', apply: st => ({ ...st, money: sub(st.money, fromNumber(rawCost)), perkFluxTier: st.perkFluxTier + 1 }) });
       }
     }
 
     if (s.edOwned >= 5) {
-      const cost = fluxCost(s.fluxOwned);
-      if (cost <= spendableMoney) {
-        candidates.push({ id: 'flux', cost, resource: 'money', apply: st => ({ ...st, money: st.money - cost, fluxOwned: st.fluxOwned + 1 }) });
+      const rawCost = fluxCost(s.fluxOwned);
+      if (gte(spendableMoney, rawCost)) {
+        candidates.push({ id: 'flux', cost: rawCost, resource: 'money', apply: st => ({ ...st, money: sub(st.money, rawCost), fluxOwned: st.fluxOwned + 1 }) });
       }
     }
   }
@@ -83,10 +84,10 @@ export function autoBuyUpgrades(s: Readonly<GameState>): GameState {
   if (spendableLevels > 0) {
     for (const m of MASTERY_COSTS) {
       if ((s as any)[m.key]) continue;
-      if (m.cost <= spendableLevels) {
+      if (gte(fromNumber(spendableLevels), fromNumber(m.cost))) {
         candidates.push({
           id: m.key,
-          cost: m.cost,
+          cost: fromNumber(m.cost),
           resource: 'level',
           apply: st => {
             const next = { ...st, spentLevels: st.spentLevels + m.cost };
@@ -101,7 +102,7 @@ export function autoBuyUpgrades(s: Readonly<GameState>): GameState {
   if (candidates.length === 0) return { ...s };
 
   const pick = au.buyCheapest
-    ? candidates.reduce((a, b) => (a.cost < b.cost ? a : b))
+    ? candidates.reduce((a, b) => (lt(a.cost, b.cost) ? a : b))
     : candidates[0];
 
   return pick.apply(s);

@@ -1,51 +1,60 @@
+import type { BigNum } from './BigNum';
+import { BN_ZERO, BN_ONE, fromNumber, toNum, sub, mul, div, pow, gte } from './BigNum';
 import type { GameState } from '../types/game';
 
 const finite = (n: number, def: number): number =>
   typeof n === 'number' && Number.isFinite(n) ? n : def;
 
-export const cost = (base: number, owned: number, discount: boolean, flux: number = 0) => {
+export const cost = (base: number, owned: number, discount: boolean, flux: number = 0): BigNum => {
   const discountMult = discount ? 0.85 : 1;
-  const growth = Math.pow(1.12, owned);
-  const shrink = Math.pow(0.95, flux);
-  return finite(Math.max(0.10, discountMult * base * growth * shrink), 0.10);
+  const growth = pow(1.12, owned);
+  const shrink = pow(0.95, flux);
+  const val = mul(mul(fromNumber(discountMult * base), growth), shrink);
+  return gte(val, fromNumber(0.10)) ? val : fromNumber(0.10);
 };
 
-export const totalCost = (base: number, owned: number, count: number, discount: boolean, flux: number = 0) => {
-  if (count <= 0) return 0;
+export const totalCost = (base: number, owned: number, count: number, discount: boolean, flux: number = 0): BigNum => {
+  if (count <= 0) return BN_ZERO;
   const discountMult = discount ? 0.85 : 1;
-  const growth = Math.pow(1.12, owned);
-  const series = (Math.pow(1.12, count) - 1) / 0.12;
-  const shrink = Math.pow(0.95, flux);
-  const raw = discountMult * base * growth * series * shrink;
-  if (!isFinite(raw) || raw > 1e300) return 1e300;
-  return Math.max(0.10, raw);
+  const growth = pow(1.12, owned);
+  const series = div(sub(pow(1.12, count), BN_ONE), fromNumber(0.12));
+  const shrink = pow(0.95, flux);
+  let result = mul(mul(fromNumber(discountMult * base), growth), series);
+  result = mul(result, shrink);
+  return gte(result, fromNumber(0.10)) ? result : fromNumber(0.10);
 };
 
-export const fluxCost = (owned: number) =>
-  finite(Math.max(0.10, 100 * Math.pow(1.25, owned)), 0.10);
-
-export const totalFluxCost = (owned: number, count: number) => {
-  if (count <= 0) return 0;
-  const growth = Math.pow(1.25, owned);
-  const series = (Math.pow(1.25, count) - 1) / 0.25;
-  const raw = 100 * growth * series;
-  if (!isFinite(raw) || raw > 1e300) return 1e300;
-  return Math.max(0.10, raw);
+export const fluxCost = (owned: number): BigNum => {
+  const val = mul(fromNumber(100), pow(1.25, owned));
+  return gte(val, fromNumber(0.10)) ? val : fromNumber(0.10);
 };
 
-export const maxAffordableFlux = (owned: number, money: number) => {
-  const unitCost = Math.max(0.10, 100 * Math.pow(1.25, owned));
-  const ratio = money * 0.25 / unitCost;
+export const totalFluxCost = (owned: number, count: number): BigNum => {
+  if (count <= 0) return BN_ZERO;
+  const growth = pow(1.25, owned);
+  const series = div(sub(pow(1.25, count), BN_ONE), fromNumber(0.25));
+  const val = mul(mul(fromNumber(100), growth), series);
+  return gte(val, fromNumber(0.10)) ? val : fromNumber(0.10);
+};
+
+export const maxAffordableFlux = (owned: number, money: BigNum): number => {
+  const unitCost = fluxCost(owned);
+  const ratioVal = div(mul(money, fromNumber(0.25)), unitCost);
+  const ratio = toNum(ratioVal);
   if (ratio <= 0) return 0;
   let n = Math.floor(Math.log(1 + ratio) / Math.log(1.25));
   n = Math.min(n, 10000);
-  return finite(Math.max(0, n), 0);
+  return Math.max(0, n);
 };
 
 export const xpForLevel = (level: number) => finite(100 * Math.pow(1.5, level), Number.MAX_VALUE);
 
-export const ascensionMult = (totalLines: number) =>
-  finite(1 + Math.sqrt(Math.max(0, totalLines) / 100_000), 1);
+export const ascensionMult = (totalLines: BigNum): BigNum => {
+  const n = toNum(totalLines);
+  const val = 1 + Math.sqrt(Math.max(0, n) / 100_000);
+  if (!Number.isFinite(val) || val < 1) return BN_ONE;
+  return fromNumber(val);
+};
 
 export const SENIOR_PRESTIGE_THRESHOLD = 100_000_000;
 
@@ -54,14 +63,14 @@ export const FRAMEWORK_PRESTIGE_THRESHOLD = 100;
 export const frameworkPointsToGain = (totalSeniorPoints: number): number =>
   finite(Math.floor(Math.sqrt(Math.max(0, totalSeniorPoints) / 100)), 0);
 
-export const frameworkCost = (level: number): number =>
-  finite(Math.max(0.10, 1 * Math.pow(1.5, level)), 0.10);
+export const frameworkCost = (level: number): BigNum =>
+  fromNumber(Math.max(0.10, Math.pow(1.5, level)));
 
 export const performFrameworkPrestige = (s: GameState): GameState => {
   const gain = frameworkPointsToGain(s.totalSeniorPoints);
   return {
     ...s,
-    lines: 0, money: 0, vibeShards: 0,
+    lines: BN_ZERO, money: BN_ZERO, vibeShards: 0,
     edOwned: 0, kbOwned: 0, lintOwned: 0, fluxOwned: 0,
     emCoffee: false, emStack: false, emDuck: false,
     perkEdTier: 0, perkKbTier: 0, perkLintTier: 0, perkFluxTier: 0,
@@ -74,11 +83,11 @@ export const performFrameworkPrestige = (s: GameState): GameState => {
     masteryPairProgram: false, masterySprintSprint: false,
     masteryStandupSync: false, masteryAgileRetro: false,
     masteryRefactorPro: false, masteryTestDriven: false, masteryShipIt: false,
-    vibeLevel: 0, vibeXP: 0, spentLevels: 0,
-    ascensionMultiplier: 1, ascensionCount: 0,
-    lintMilestoneBoost: 1, maxLPS: 0,
+    vibeLevel: 0, vibeXP: BN_ZERO, spentLevels: 0,
+    ascensionMultiplier: BN_ONE, ascensionCount: 0,
+    lintMilestoneBoost: 1, maxLPS: BN_ZERO,
     darkWebMultiplier: 0,
-    seniorPoints: 0, totalSeniorPoints: 0, seniorLines: 0,
+    seniorPoints: 0, totalSeniorPoints: 0, seniorLines: BN_ZERO,
     retentionLevel: 0, sfLevel: 0, autoBuyerActive: false,
     frameworkPoints: (s.frameworkPoints ?? 0) + gain,
     totalFrameworkPoints: (s.totalFrameworkPoints ?? 0) + gain,
@@ -87,8 +96,10 @@ export const performFrameworkPrestige = (s: GameState): GameState => {
 };
 
 
-export const seniorPointsToGain = (seniorLines: number) =>
-  finite(Math.floor(Math.sqrt(Math.max(0, seniorLines) / SENIOR_PRESTIGE_THRESHOLD)), 0);
+export const seniorPointsToGain = (seniorLines: BigNum): number => {
+  const n = toNum(seniorLines);
+  return Math.floor(Math.sqrt(Math.max(0, n) / SENIOR_PRESTIGE_THRESHOLD));
+};
 
 export const getRetentionRate = (level: number) => level * 0.02;
 
@@ -96,22 +107,22 @@ export const seniorFrameworkBonus = (points: number, sfLevel: number) =>
   1 + sfLevel * 0.10 * points;
 
 export const performSeniorPrestige = (s: GameState): GameState => {
-  const gain = seniorPointsToGain(s.seniorLines ?? 0);
+  const gain = seniorPointsToGain(s.seniorLines);
   const retention = getRetentionRate(s.retentionLevel);
-  const retained = Math.floor(s.totalLinesEver * retention);
+  const retained = Math.floor(toNum(s.totalLinesEver) * retention);
   return {
     ...s,
     seniorPoints: s.seniorPoints + gain,
     totalSeniorPoints: s.totalSeniorPoints + gain,
-    seniorLines: 0,
-    lines: retained,
-    money: 0,
+    seniorLines: BN_ZERO,
+    lines: fromNumber(retained),
+    money: BN_ZERO,
     edOwned: 0, kbOwned: 0, lintOwned: 0, fluxOwned: 0,
     perkEdTier: 0, perkKbTier: 0, perkLintTier: 0, perkFluxTier: 0,
     emCoffee: false, emStack: false, emDuck: false,
-    ascensionMultiplier: 1, ascensionCount: 0,
-    vibeLevel: 0, vibeXP: 0, spentLevels: 0,
-    lintMilestoneBoost: 1, maxLPS: 0,
+    ascensionMultiplier: BN_ONE, ascensionCount: 0,
+    vibeLevel: 0, vibeXP: BN_ZERO, spentLevels: 0,
+    lintMilestoneBoost: 1, maxLPS: BN_ZERO,
   };
 };
 
@@ -124,7 +135,7 @@ export const clickMultiplier = (s: GameState) => {
   if (s.premiumHyperThreaded) m *= 2;
   if (s.masteryMultiThreaded) m *= 2;
   m *= vibeMult(s);
-  m *= s.ascensionMultiplier;
+  m *= toNum(s.ascensionMultiplier);
   if (s.premiumAIOverlord) m *= (1 + 0.01 * Math.floor(s.totalClicks / 100));
   if (s.premiumEternalLoop) m *= (1 + 0.10 * s.ascensionCount);
   m *= 1 + s.darkWebMultiplier;
@@ -137,7 +148,7 @@ export const autoMultiplier = (s: GameState) => {
   let m = 1;
   if (s.premiumCloudCompute) m *= 2;
   m *= vibeMult(s);
-  m *= s.ascensionMultiplier;
+  m *= toNum(s.ascensionMultiplier);
   if (s.premiumAIOverlord) m *= (1 + 0.01 * Math.floor(s.totalClicks / 100));
   if (s.premiumEternalLoop) m *= (1 + 0.10 * s.ascensionCount);
   m *= 1 + s.darkWebMultiplier;
@@ -193,12 +204,14 @@ export const checkMilestones = (owned: number) => {
   return m;
 };
 
-export const maxAffordable = (base: number, owned: number, money: number, limit: number | null, flux: number = 0) => {
+export const maxAffordable = (base: number, owned: number, money: BigNum, limit: number | null, flux: number = 0): number => {
   if (limit != null && owned >= limit) return 0;
-  const growth = Math.pow(1.12, owned);
-  const shrink = Math.pow(0.95, flux);
-  const unitCost = Math.max(0.10, base * growth * shrink);
-  const ratio = money * 0.12 / unitCost;
+  const growth = pow(1.12, owned);
+  const shrink = pow(0.95, flux);
+  const unitCost = mul(mul(fromNumber(base), growth), shrink);
+  const unitCostClamped = gte(unitCost, fromNumber(0.10)) ? unitCost : fromNumber(0.10);
+  const ratioBN = div(mul(money, fromNumber(0.12)), unitCostClamped);
+  const ratio = toNum(ratioBN);
   if (ratio <= 0) return 0;
   let n = Math.floor(Math.log(1 + ratio) / Math.log(1.12));
   n = Math.min(n, 10000);
@@ -221,27 +234,31 @@ export const manualLPS = (s: GameState): number => {
   return (recent.length * linesPerClick(s)) / 2;
 };
 
-export function formatNum(n: number, scientific: boolean): string {
+export function formatNum(n: BigNum | number, scientific: boolean): string {
+  if (typeof n === 'object' && n !== null) {
+    if (n.e < 15) return String(Math.round(n.m * Math.pow(10, n.e)));
+    return n.m.toFixed(2) + 'e+' + n.e;
+  }
   if (typeof n !== 'number') return String(n);
   if (scientific || n >= 1e15) return n < 100 ? n.toFixed(2) : n.toExponential(2);
   if (n < 100) return n.toFixed(2);
   return Math.round(n).toLocaleString();
 }
 
-export function formatMoney(n: number, scientific: boolean): string {
+export function formatMoney(n: BigNum | number, scientific: boolean): string {
   return '$' + formatNum(n, scientific);
 }
 
 export function getVisiblePerkTier(
   owned: number,
-  money: number,
+  money: BigNum,
   thresholds: number[],
   costs: number[],
 ): number | null {
   let best: number | null = null;
   for (let i = 0; i < thresholds.length; i++) {
     if (owned < thresholds[i]) break;
-    if (money >= costs[i] * 0.9) best = i;
+    if (gte(money, fromNumber(costs[i] * 0.9))) best = i;
   }
   return best;
 }

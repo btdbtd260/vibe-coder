@@ -47,7 +47,7 @@ const BOOLEANS: (keyof GameState)[] = [
   'masteryMultiThreaded', 'masteryAlgorithm', 'masteryCloudCredit',
   'masteryFocusScroll', 'masteryTidyComments', 'masteryCodeReview',
   'masteryPairProgram', 'masterySprintSprint', 'masteryStandupSync', 'masteryAgileRetro', 'masteryRefactorPro', 'masteryTestDriven', 'masteryShipIt',
-  'useScientific', 'autoBuyerActive', 'offlineProgressEnabled', 'onboardingSeen',
+  'useScientific', 'autoBuyerActive', 'offlineProgressEnabled', 'onboardingSeen', 'soundEnabled'
 ];
 
 const HOTKEY_NAMES: (keyof GameState['hotkeys'])[] = [
@@ -128,7 +128,7 @@ export function validateState(
     if (typeof ae.buyMode === 'string' && (ae.buyMode === '1x' || ae.buyMode === 'max')) {
       (result.autoEditors as any).buyMode = ae.buyMode;
     }
-    if (isFiniteNum(ae.intervalSec) && (ae.intervalSec as number) >= 1) {
+    if (isFiniteNum(ae.intervalSec) && (ae.intervalSec as number) >= 0.00001) {
       (result.autoEditors as any).intervalSec = ae.intervalSec;
     }
   }
@@ -144,7 +144,7 @@ export function validateState(
     if (isFiniteNum(au.vibeReservePct) && (au.vibeReservePct as number) >= 0 && (au.vibeReservePct as number) <= 100) {
       (result.autoUpgrades as any).vibeReservePct = au.vibeReservePct;
     }
-    if (isFiniteNum(au.intervalSec) && (au.intervalSec as number) >= 1) {
+    if (isFiniteNum(au.intervalSec) && (au.intervalSec as number) >= 0.00001) {
       (result.autoUpgrades as any).intervalSec = au.intervalSec;
     }
   }
@@ -159,7 +159,7 @@ export function validateState(
     if (isFiniteNum(aa.minimumRunTimeSec) && (aa.minimumRunTimeSec as number) >= 0) {
       (result.autoAscension as any).minimumRunTimeSec = aa.minimumRunTimeSec;
     }
-    if (isFiniteNum(aa.intervalSec) && (aa.intervalSec as number) >= 1) {
+    if (isFiniteNum(aa.intervalSec) && (aa.intervalSec as number) >= 0.00001) {
       (result.autoAscension as any).intervalSec = aa.intervalSec;
     }
   }

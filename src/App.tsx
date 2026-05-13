@@ -25,6 +25,9 @@ import SeniorOfficeTab from './components/TabContent/SeniorOfficeTab';
 import FrameworkTab from './components/TabContent/FrameworkTab';
 import { useJuniorDevBot } from './hooks/useJuniorDevBot';
 import { useGameActions } from './hooks/useGameActions';
+import { useSound } from './hooks/useSound';
+import { useParticles } from './hooks/useParticles';
+import Particles from './components/ui/Particles';
 import WelcomeBackOverlay from './components/WelcomeBackOverlay';
 import OnboardingOverlay from './components/OnboardingOverlay';
 
@@ -82,12 +85,18 @@ export default function App() {
     wrappedSetState(prev => ({ ...prev, onboardingSeen: true }));
   }, [wrappedSetState]);
 
+  const { syncFromState, click: soundClick, buy: soundBuy, ascend: soundAscend, prestige: soundPrestige } = useSound();
+  const { particles, spawn } = useParticles();
+  syncFromState(state);
+
   const { handleClick, handleCycle, handleBuy } = useGameActions(wrappedSetState);
 
   const hotkeyDispatch = useCallback((action: { type: string; payload?: string }) => {
     switch (action.type) {
       case 'tab': setActiveTab(action.payload!); break;
       case 'click':
+        soundClick();
+        spawn(window.innerWidth / 2, window.innerHeight / 2);
         handleClick();
         break;
       case 'buy':
@@ -102,7 +111,7 @@ export default function App() {
   useSyncKeyHotkeys(state, hotkeyDispatch);
 
   const ActiveComponent = TAB_COMPONENTS[activeTab];
-  const tabProps = { state, setState: wrappedSetState, addLog, logs };
+  const tabProps = { state, setState: wrappedSetState, addLog, logs, soundClick, soundBuy, soundAscend, soundPrestige, spawn };
 
   return (
     <TooltipProvider>
@@ -132,7 +141,8 @@ export default function App() {
             </AnimatePresence>
           </div>
         </main>
-      </div>
+        <Particles particles={particles} />
+    </div>
     </TooltipProvider>
   );
 }

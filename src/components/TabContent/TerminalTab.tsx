@@ -11,9 +11,12 @@ interface Props {
   setState: (s: GameState | ((prev: GameState) => GameState)) => void;
   logs: string[];
   addLog: (msg: string) => void;
+  soundClick?: () => void;
+  soundBuy?: () => void;
+  spawn?: (x: number, y: number) => void;
 }
 
-export default function TerminalTab({ state, setState, logs }: Props) {
+export default function TerminalTab({ state, setState, logs, soundClick, soundBuy, spawn }: Props) {
   const modes = ['1x', '10x', '100x', 'MAX'];
   const s = state.useScientific;
   const edMaxed = state.edOwned >= 5;
@@ -21,6 +24,8 @@ export default function TerminalTab({ state, setState, logs }: Props) {
   const modeIdx = state.buyModeIndex;
 
   const click = () => {
+    if (soundClick) soundClick();
+    if (spawn) spawn(window.innerWidth / 2, window.innerHeight * 0.6);
     const lpc = linesPerClick(state);
     const next = writeLines(state, lpc, moneyPerLine(state), 1);
     setState({ ...next, totalClicks: next.totalClicks + 1, clickHistory: [...next.clickHistory, Date.now()].slice(-100) });
@@ -38,6 +43,7 @@ export default function TerminalTab({ state, setState, logs }: Props) {
       if (c <= 0) return prev;
       const price = totalCost(base, owned, c, prev.masteryCloudCredit, prev.fluxOwned);
       if (lt(prev.money, price)) return prev;
+      if (soundBuy) soundBuy();
       return { ...prev, money: sub(prev.money, price), [key]: owned + c };
     });
   };
@@ -53,6 +59,7 @@ export default function TerminalTab({ state, setState, logs }: Props) {
       if (c <= 0) return prev;
       const price = totalFluxCost(prev.fluxOwned, c);
       if (lt(prev.money, price)) return prev;
+      if (soundBuy) soundBuy();
       return { ...prev, money: sub(prev.money, price), fluxOwned: prev.fluxOwned + c };
     });
   };

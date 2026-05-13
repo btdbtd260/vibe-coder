@@ -7,9 +7,10 @@ interface Props {
   state: GameState;
   setState: (s: GameState) => void;
   addLog: (msg: string) => void;
+  soundAscend?: () => void;
 }
 
-export default function AscensionTab({ state, setState, addLog }: Props) {
+export default function AscensionTab({ state, setState, addLog, soundAscend }: Props) {
   const [show, setShow] = useState(false);
   const s = state.useScientific;
   const newMult = ascensionMult(state.totalLinesEver);
@@ -35,7 +36,11 @@ export default function AscensionTab({ state, setState, addLog }: Props) {
       lintMilestoneBoost: 1, maxLPS: BN_ZERO,
     };
     setState(next);
+    setState(next);
     setShow(false);
+    if (soundAscend) soundAscend();
+    document.body.classList.add("screen-shake");
+    setTimeout(() => document.body.classList.remove("screen-shake"), 500);
     addLog(`Ascended! Multiplier now x${formatNum(newMult, s)}`);
   };
 

@@ -8,9 +8,10 @@ interface Props {
   state: GameState;
   setState: (s: GameState) => void;
   addLog: (msg: string) => void;
+  soundPrestige?: () => void;
 }
 
-export default function FrameworkTab({ state, setState, addLog }: Props) {
+export default function FrameworkTab({ state, setState, addLog, soundPrestige }: Props) {
   const s = state.useScientific;
   const canPrestige = state.totalSeniorPoints >= FRAMEWORK_PRESTIGE_THRESHOLD;
   const gain = frameworkPointsToGain(state.totalSeniorPoints);
@@ -20,6 +21,7 @@ export default function FrameworkTab({ state, setState, addLog }: Props) {
     if (!canPrestige) return;
     const next = performFrameworkPrestige(state);
     setState(next);
+    if (soundPrestige) soundPrestige();
     addLog(`Framework Prestige complete! +${gain} Framework Points.`);
   };
 

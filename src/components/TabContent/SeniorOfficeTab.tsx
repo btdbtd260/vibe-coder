@@ -6,9 +6,10 @@ interface Props {
   state: GameState;
   setState: (s: GameState | ((prev: GameState) => GameState)) => void;
   addLog: (msg: string) => void;
+  soundPrestige?: () => void;
 }
 
-export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
+export default function SeniorOfficeTab({ state, setState, addLog, soundPrestige }: Props) {
   const s = state.useScientific;
   const gain = seniorPointsToGain(state.seniorLines ?? BN_ZERO);
   const canPrestige = gain >= 1;
@@ -17,6 +18,7 @@ export default function SeniorOfficeTab({ state, setState, addLog }: Props) {
     if (!canPrestige) return;
     const next = performSeniorPrestige(state);
     setState(next);
+    if (soundPrestige) soundPrestige();
     addLog(`Senior Prestige complete! +${gain} Senior Points.`);
   };
 

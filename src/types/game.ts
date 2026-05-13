@@ -72,6 +72,7 @@ export interface GameState {
   maxLPS: BigNum;
   useScientific: boolean;
   offlineProgressEnabled: boolean;
+  soundEnabled: boolean;
   buyModeIndex: number;
   hotkeys: {
     click: string;
@@ -116,7 +117,7 @@ export const defaultState: GameState = {
   vibeLevel: 0, vibeXP: BN_ZERO, spentLevels: 0,
   ascensionMultiplier: BN_ONE, ascensionCount: 0, lintMilestoneBoost: 1,
   totalLinesEver: BN_ZERO, totalClicks: 0, totalPlayedMs: 0, maxLPS: BN_ZERO,
-  useScientific: false, offlineProgressEnabled: true, buyModeIndex: 0,
+  useScientific: false, offlineProgressEnabled: true, soundEnabled: false, buyModeIndex: 0,
   hotkeys: {
     click: ' ',
     tab_terminal: '1', tab_automation: '2', tab_ascension: '3',

@@ -1,5 +1,5 @@
 import type { GameState } from '../../types/game';
-import { formatNum, formatMoney, linesPerClick, automationLPS, moneyPerLine, clickMultiplier } from '../../utils/math';
+import { formatNum, formatMoney, automationLPS, moneyPerLine, clickMultiplier } from '../../utils/math';
 
 export default function MetricsTab({ state }: { state: GameState }) {
   const s = state.useScientific;
@@ -12,13 +12,11 @@ export default function MetricsTab({ state }: { state: GameState }) {
 
   const lifetimeRows: [string, string][] = [
     ['Total Lines Ever', formatNum(state.totalLinesEver, s)],
-    ['Total Clicks', formatNum(state.totalClicks, s)],
     ['Total Time Played', timeStr],
     ['All-Time Max LPS', formatNum(state.maxLPS, s)],
   ];
 
   const efficiencyRows: [string, string][] = [
-    ['Lines Per Click', formatNum(linesPerClick(state), s)],
     ['Auto Lines/sec', formatNum(automationLPS(state), s)],
     ['Money Per Line', formatMoney(moneyPerLine(state), s)],
     ['Click Mult', `x${formatNum(clickMultiplier(state), s)}`],

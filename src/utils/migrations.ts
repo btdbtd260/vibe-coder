@@ -1,7 +1,8 @@
 import type { GameState } from '../types/game';
 import { fromNumber, BN_ZERO } from './BigNum';
+import { createInitialPipelineState } from './pipelineEngine';
 
-export const CURRENT_SAVE_VERSION = 13;
+export const CURRENT_SAVE_VERSION = 15;
 
 type Migration = (state: GameState) => GameState;
 
@@ -15,8 +16,11 @@ const migrations: Record<number, Migration> = {
   10: (s) => ({ ...(s as any), seniorLines: BN_ZERO, perkFluxTier: 0 }) as GameState,
   // v12: add musicEnabled
   12: (s) => ({ ...(s as any), musicEnabled: (s as any).musicEnabled ?? false }) as GameState,
-  // v13: add showNotifications
-  13: (s) => ({ ...(s as any), showNotifications: (s as any).showNotifications ?? true }) as GameState,
+   // v13: add showNotifications
+   13: (s) => ({ ...(s as any), showNotifications: (s as any).showNotifications ?? true }) as GameState,
+   // v14: add ascension upgrade fields
+   14: (s) => ({ ...(s as any), acceleratedGrowth: (s as any).acceleratedGrowth ?? 0, headStart: (s as any).headStart ?? 0, efficientAscension: (s as any).efficientAscension ?? 0, quickCycle: (s as any).quickCycle ?? 0 }) as GameState,
+   15: (s) => ({ ...(s as any), pipeline: (s as any).pipeline ?? createInitialPipelineState() }) as GameState,
   11: (s) => ({
     ...(s as any),
     lines: typeof (s as any).lines === 'number' ? fromNumber((s as any).lines) : (s as any).lines,

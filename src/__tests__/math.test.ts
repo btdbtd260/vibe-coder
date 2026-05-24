@@ -241,11 +241,6 @@ describe('clickMultiplier', () => {
     expect(clickMultiplier(makeState({ ascensionMultiplier: fromNumber(5) }))).toBeCloseTo(5, 4);
   });
 
-  it('includes AI Overlord bonus', () => {
-    const s = makeState({ premiumAIOverlord: true, totalClicks: 500 });
-    expect(clickMultiplier(s)).toBeCloseTo(1 + 0.01 * 5, 4);
-  });
-
   it('includes Eternal Loop bonus', () => {
     const s = makeState({ premiumEternalLoop: true, ascensionCount: 3 });
     expect(clickMultiplier(s)).toBeCloseTo(1 + 0.10 * 3, 4);
@@ -623,8 +618,6 @@ describe('writeLines crash regression', () => {
       premiumHyperThreaded: true,
       masteryMultiThreaded: true,
       darkWebMultiplier: 1e100,
-      totalClicks: 1e100,
-      premiumAIOverlord: true,
       premiumEternalLoop: true,
       ascensionCount: 1e100,
     });

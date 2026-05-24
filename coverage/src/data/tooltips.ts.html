@@ -1,0 +1,409 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/data/tooltips.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/data</a> tooltips.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/102</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>1/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>1/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/102</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export interface TooltipContent {
+  title: string;
+  long: string;
+  mechanic: string;
+}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >export const UPGRADE_LORE: Record&lt;string, TooltipContent&gt; = {</span>
+<span class="cstat-no" title="statement not covered" >  money: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Digital Assets',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'Fiat currency converted to crypto on the fly. Every line of code generates revenue from automated micro-contracts deployed to the blockchain.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Base $0.05/line + bonuses from Rubber Duck (+$0.01) and Tidy Comments (+1%). Multiplied by global production multipliers.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  vibeShards: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Vibe Shards',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'Fragments of pure computational essence. Earned from leveling up and trading Vibe Levels in the Cloud Shop.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Spent on Premium upgrades (Hyper-Threaded Vibe, Cloud Compute, AI Overlord).',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  maxLPS: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Hash Rate (LPS)',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'Lines Per Second — the speed at which your automation generates code. Aggregated from Auto-Linters, milestone boosts, and emergent upgrades.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Base = lintOwned × 1 × milestoneBoost. Perks multiply further. Multiplied by Cloud Compute (2×), Code Review (+2%), etc.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  vibeLevel: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Vibe Level',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'Your mastery of the coding flow state. Each level represents a deeper synchronization with the compiler.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Each level grants +5% global production (additive). XP required: 100 × 1.5^level.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  ascensionMultiplier: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Ascension Multiplier',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'The permanent productivity boost earned by graduating. Each ascension resets progress but crystallizes output into a permanent multiplier.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Multiplier = 1 + √(totalLinesEver / 1M). Stacks multiplicatively with all bonuses.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  edOwned: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Energy Drink',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'Bootleg caffeine derivatives sourced from the dark web. Each can rewires your neural stack for faster code output.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: '+0.5 base click power per level (additive). Cap: 5. Cost: 1.00 × 1.15^owned.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  fluxOwned: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Energy Flux',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'A refined energy substrate that optimizes your entire development stack. Reduces the friction cost of Mechanical Keyboards and Auto-Linters.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Each level reduces KB and Lint costs by 5% (multiplicative). Cost: 100 × 1.25^owned (aggressive scaling). Replaces Energy Drink at cap.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  kbOwned: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Mechanical Keyboard',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'A vintage Model M keyboard with buckling-spring switches. Each keystroke sounds like a tiny thunderclap. The louder you type, the more the compiler respects you.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: '+1.5 base click power per level (additive). Cost: 5.00 × 1.15^owned × 0.95^fluxOwned.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  lintOwned: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Auto-Linter',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'A daemon that crawls through your codebase correcting syntax and generating boilerplate. It learns from every line you write, slowly becoming self-aware.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: '+1 LoC/sec per level × milestone boost. Milestones at level 10, 25, 100+ (2× each). Cost: 20.00 × 1.15^owned × 0.95^fluxOwned.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  perkEdTier: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'ED Perks',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'Enhancements to your Energy Drink stack. Double Shot doubles the caffeine hit; Caffeine IV is a direct neural tap.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Tier 1: ED power +25%. Tier 2: ED power +50%. Unlock at ED 3 and ED 5.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  perkKbTier: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Keyboard Perks',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'After enough keystrokes, you begin to modify the hardware itself. Each tier is a new switch technology.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Each tier adds a multiplicative bonus to KB click power (up to +500% at tier 7). Unlocks at KB 10, 25, 100, 200, 500, 750, 1000.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  perkLintTier: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Linter Perks',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'As the linter grows more experienced, it begins to optimize its own optimization algorithms.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Each tier adds a multiplicative bonus to linter speed (up to +500% at tier 7). Unlocks at Lint 10, 25, 100, 200, 500, 750, 1000.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  premiumHyperThreaded: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Hyper-Threaded Vibe',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'A direct neural interface that lets you code in parallel threads. Your consciousness splits into two simultaneous debug sessions.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Permanent ×2 click power. 10 Shards.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  premiumCloudCompute: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Cloud Compute',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'AWS, GCP, Azure — you rent them all simultaneously. The auto-linter now runs on a distributed cluster of retired cryptocurrency miners.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Permanent ×2 auto-linter speed. 25 Shards.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  premiumAIOverlord: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'AI Overlord',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'You sold 51% of your company to a sentient GPT instance. In return, it rewrites your code while you sleep.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: '+1% to all production per 100 total manual clicks (multiplicative, uncapped). 50 Shards.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  premiumEternalLoop: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Eternal Loop',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'Each ascension makes you stronger. This upgrade ensures that memory is never truly lost.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Ascension multiplier gains +10% additive per prior ascension. 100 Shards.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  premiumQuantumBackup: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Quantum Backup',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'A snapshot of your consciousness at the moment of peak productivity. When you ascend, a fragment remains.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Keep 10% of your vibeLevel on ascend (rounded down). 75 Shards.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  premiumRecursiveCompile: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Recursive Compile',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'The compiler learns from its own output. The dark web nodes begin to whisper in XP.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Dark Web node income also generates XP at 50% efficiency. 150 Shards.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  premiumParallelDim: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Parallel Dimension',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'The Archive is not a record of the past — it is a live feed from a universe where you are more productive.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: '+25% global production while Archive has any unlocked entry. 200 Shards.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  premiumNeuralLink: {</span>
+<span class="cstat-no" title="statement not covered" >    title: 'Neural Link',</span>
+<span class="cstat-no" title="statement not covered" >    long: 'The final upgrade: your thoughts are the input. No keyboard needed. No keys to press.',</span>
+<span class="cstat-no" title="statement not covered" >    mechanic: 'Hotkeys also work while any text input is focused (except during rebinding). 250 Shards.',</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >};</span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-05-24T15:51:11.877Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

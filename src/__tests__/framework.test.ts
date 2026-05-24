@@ -155,14 +155,12 @@ describe('performFrameworkPrestige', () => {
     const s = makeState({
       totalSeniorPoints: 400,
       totalLinesEver: fromNumber(500_000_000),
-      totalClicks: 10000,
       totalPlayedMs: 3600000,
       useScientific: true,
       ascensionCount: 5,
     });
     const result = performFrameworkPrestige(s);
     expect(result.totalLinesEver).toStrictEqual(fromNumber(500_000_000));
-    expect(result.totalClicks).toBe(10000);
     expect(result.totalPlayedMs).toBe(3600000);
     expect(result.useScientific).toBe(true);
     expect(result.ascensionCount).toBe(0);

@@ -197,7 +197,6 @@ function baseMultiplier(s: GameState): number {
   let m = 1;
   m *= vibeMult(s);
   m *= toNum(s.ascensionMultiplier);
-  if (s.premiumAIOverlord) m *= 1 + 0.01 * Math.floor(s.totalClicks / 100);
   if (s.premiumEternalLoop) m *= 1 + 0.1 * s.ascensionCount;
   m *= 1 + s.darkWebMultiplier;
   m *= seniorFrameworkBonus(s.seniorPoints, s.sfLevel);
@@ -306,10 +305,8 @@ export const moneyPerLine = (s: GameState) => {
   return finite(Math.max(0.01, base), 0.01);
 };
 
-export const manualLPS = (s: GameState): number => {
-  const now = Date.now();
-  const recent = s.clickHistory.filter((t) => now - t <= 2000);
-  return (recent.length * linesPerClick(s)) / 2;
+export const manualLPS = (_s: GameState): number => {
+  return 0;
 };
 
 export function formatNum(n: BigNum | number, scientific: boolean): string {

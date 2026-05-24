@@ -131,7 +131,6 @@ describe('autoAscend', () => {
       money: fromNumber(2_000_000),
       totalPlayedMs: 500_000,
       totalLinesEver: fromNumber(1_000_000_000),
-      totalClicks: 5000,
       useScientific: true,
       seniorPoints: 100,
       totalSeniorPoints: 200,
@@ -142,7 +141,6 @@ describe('autoAscend', () => {
     });
     const result = autoAscend(s);
     expect(result.totalLinesEver).toStrictEqual(fromNumber(1_000_000_000));
-    expect(result.totalClicks).toBe(5000);
     expect(result.totalPlayedMs).toBe(500_000);
     expect(result.useScientific).toBe(true);
     expect(result.seniorPoints).toBe(100);

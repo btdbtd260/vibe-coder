@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import type { GameState } from "../types/game";
 
 interface HotkeyAction {
-  type: "tab" | "click" | "buy" | "cycle";
+  type: "tab" | "buy" | "cycle";
   payload?: string;
 }
 
@@ -29,12 +29,6 @@ export function useSyncKeyHotkeys(
       const key = e.key === " " ? " " : e.key.toLowerCase();
       const hk = hotkeysRef.current;
 
-      if (key === hk.click) {
-        e.preventDefault();
-        blur();
-        dispatch({ type: "click" });
-        return;
-      }
       if (key === hk.cycle_mode) {
         e.preventDefault();
         blur();

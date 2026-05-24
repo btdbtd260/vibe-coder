@@ -1,5 +1,7 @@
 import type { BigNum } from '../utils/BigNum';
 import { BN_ZERO, BN_ONE } from '../utils/BigNum';
+import type { PipelineState } from '../utils/pipelineEngine';
+import { createInitialPipelineState } from '../utils/pipelineEngine';
 
 export interface AutoEditorSettings {
   enabled: boolean;
@@ -24,6 +26,16 @@ export interface AutoAscensionSettings {
   intervalSec: number;
 }
 
+export interface AscensionUpgradeDef {
+  readonly id: string;
+  readonly name: string;
+  readonly desc: string;
+  readonly maxLevel: number;
+  readonly baseCost: number;
+  readonly costScale: number;
+  readonly effectPerLevel: number;
+}
+
 export interface GameState {
   lines: BigNum;
   money: BigNum;
@@ -32,6 +44,10 @@ export interface GameState {
   kbOwned: number;
   lintOwned: number;
   fluxOwned: number;
+  acceleratedGrowth: number;
+  headStart: number;
+  efficientAscension: number;
+  quickCycle: number;
   emCoffee: boolean;
   emStack: boolean;
   emDuck: boolean;
@@ -67,7 +83,6 @@ export interface GameState {
   ascensionCount: number;
   lintMilestoneBoost: number;
   totalLinesEver: BigNum;
-  totalClicks: number;
   totalPlayedMs: number;
   maxLPS: BigNum;
   useScientific: boolean;
@@ -77,14 +92,13 @@ export interface GameState {
   showNotifications: boolean;
   buyModeIndex: number;
   hotkeys: {
-    click: string;
     tab_terminal: string; tab_automation: string; tab_ascension: string;
     tab_metrics: string; tab_framework: string; tab_cloud: string; tab_config: string; tab_archive: string;
     buy_0: string; buy_1: string; buy_2: string;
     cycle_mode: string;
   };
+  pipeline: PipelineState;
   darkWebMultiplier: number;
-  clickHistory: number[];
   currentLPS: BigNum;
   seniorPoints: number;
   totalSeniorPoints: number;
@@ -108,6 +122,7 @@ export interface GameState {
 export const defaultState: GameState = {
   lines: BN_ZERO, money: BN_ZERO, vibeShards: 0,
   edOwned: 0, kbOwned: 0, lintOwned: 0, fluxOwned: 0,
+  acceleratedGrowth: 0, headStart: 0, efficientAscension: 0, quickCycle: 0,
   emCoffee: false, emStack: false, emDuck: false,
   perkEdTier: 0, perkKbTier: 0, perkLintTier: 0, perkFluxTier: 0,
   premiumHyperThreaded: false, premiumCloudCompute: false, premiumAIOverlord: false,
@@ -118,21 +133,20 @@ export const defaultState: GameState = {
   masteryPairProgram: false, masterySprintSprint: false, masteryStandupSync: false, masteryAgileRetro: false, masteryRefactorPro: false, masteryTestDriven: false, masteryShipIt: false,
   vibeLevel: 0, vibeXP: BN_ZERO, spentLevels: 0,
   ascensionMultiplier: BN_ONE, ascensionCount: 0, lintMilestoneBoost: 1,
-  totalLinesEver: BN_ZERO, totalClicks: 0, totalPlayedMs: 0, maxLPS: BN_ZERO,
+  pipeline: createInitialPipelineState(),
+  totalLinesEver: BN_ZERO, totalPlayedMs: 0, maxLPS: BN_ZERO,
   useScientific: false, offlineProgressEnabled: true, soundEnabled: false, musicEnabled: false, showNotifications: true, buyModeIndex: 0,
   hotkeys: {
-    click: ' ',
     tab_terminal: '1', tab_automation: '2', tab_ascension: '3',
     tab_metrics: '4', tab_framework: '5', tab_cloud: '6', tab_config: '7', tab_archive: '8',
     buy_0: 'q', buy_1: 'w', buy_2: 'e',
     cycle_mode: 'r',
   },
   darkWebMultiplier: 0,
-  clickHistory: [],
   currentLPS: BN_ZERO,
   frameworkPoints: 0, totalFrameworkPoints: 0, frameworkLevel: 0, frameworkCodeReview: 0, frameworkDevOps: 0,
   seniorPoints: 0, totalSeniorPoints: 0, seniorLines: BN_ZERO,
-  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 13, lastSavedAt: 0,
+  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 15, lastSavedAt: 0,
   autoEditors: { enabled: false, buyCheapest: true, moneyReservePct: 10, buyMode: '1x', intervalSec: 5 },
   autoUpgrades: { enabled: false, buyCheapest: true, moneyReservePct: 25, vibeReservePct: 10, intervalSec: 10 },
   autoAscension: { enabled: false, thresholdMultiplier: 2, minimumRunTimeSec: 300, intervalSec: 30 },
@@ -143,7 +157,6 @@ export const BUY_MODES: BuyMode[] = ['1x', '10x', '100x', 'MAX'];
 export const ED_LIMIT = 5;
 
 export const ALL_HOTKEY_ACTIONS: { id: keyof GameState['hotkeys']; label: string }[] = [
-  { id: 'click', label: 'Manual Click' },
   { id: 'tab_terminal', label: 'Tab: Terminal' },
   { id: 'tab_automation', label: 'Tab: Automation' },
   { id: 'tab_ascension', label: 'Tab: Ascension' },

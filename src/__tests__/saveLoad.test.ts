@@ -129,10 +129,10 @@ describe('save/load roundtrip', () => {
     expect(loaded.emCoffee).toBe(false);
   });
 
-  it('hotkey loaded as number falls back for that key', () => {
-    localStorage.setItem('vibe_coder_save', JSON.stringify({ hotkeys: { click: 99 } }));
+  it('unknown hotkey in save is ignored', () => {
+    localStorage.setItem('vibe_coder_save', JSON.stringify({ hotkeys: { unknown_key: 'x' }, version: 9 }));
     const loaded = loadState(defaultState);
-    expect(loaded.hotkeys.click).toBe(' ');
+    expect(loaded.hotkeys.tab_terminal).toBe('1');
   });
 
   it('full defaultState roundtrip preserves all fields', () => {

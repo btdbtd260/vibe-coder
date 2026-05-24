@@ -30,6 +30,9 @@ import FrameworkTab from "./components/TabContent/FrameworkTab";
 import { useJuniorDevBot } from "./hooks/useJuniorDevBot";
 import { useGameActions } from "./hooks/useGameActions";
 import { useSound } from "./hooks/useSound";
+import { writeLines } from "./hooks/useGameState";
+import { tickPipeline } from "./utils/pipelineEngine";
+import { sub, toNum } from "./utils/BigNum";
 import { useMusic } from "./hooks/useMusic"
 import { usePrestigeUnlocks } from "./hooks/usePrestigeUnlocks";
 import { useParticles } from "./hooks/useParticles";
@@ -127,8 +130,25 @@ export default function App() {
     return () => cancelAnimationFrame(rafId);
   }, [tick]);
 
-  const { handleClick, handleCycle, handleBuy } =
+  const { handleCycle, handleBuy } =
     useGameActions(wrappedSetState);
+
+  // Pipeline game loop: tick every 100ms
+  useEffect(() => {
+    const id = setInterval(() => {
+      wrappedSetState((prev) => {
+        const nextPipeline = tickPipeline(prev.pipeline, 100);
+        const locGained = sub(nextPipeline.loc, prev.pipeline.loc);
+        const locNum = toNum(locGained);
+        if (locNum > 0) {
+          const next = writeLines(prev, locNum, 0.10, 1);
+          return { ...next, pipeline: nextPipeline };
+        }
+        return { ...prev, pipeline: nextPipeline };
+      });
+    }, 100);
+    return () => clearInterval(id);
+  }, [wrappedSetState]);
 
   // Prestige unlock detection
   const stateRef = useRef(state);
@@ -152,12 +172,6 @@ export default function App() {
           glowButton(
             document.querySelector(`[data-action="tab-${action.payload}"]`),
           );
-          break;
-        case "click":
-          soundClick();
-          glowButton(document.querySelector(`[data-action="click"]`));
-          spawn(window.innerWidth / 2, window.innerHeight / 2);
-          handleClick();
           break;
         case "buy":
           glowButton(

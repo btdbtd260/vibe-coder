@@ -25,7 +25,8 @@ const NUMERIC_GE0: (keyof GameState)[] = [
   'perkEdTier', 'perkKbTier', 'perkLintTier', 'perkFluxTier',
   'vibeLevel', 'spentLevels',
   'ascensionCount',
-  'totalClicks', 'totalPlayedMs',
+  'acceleratedGrowth', 'headStart', 'efficientAscension', 'quickCycle',
+  'totalPlayedMs',
   'buyModeIndex', 'darkWebMultiplier',
   'seniorPoints', 'totalSeniorPoints',
   'retentionLevel', 'sfLevel', 'frameworkPoints', 'totalFrameworkPoints', 'frameworkLevel', 'frameworkCodeReview', 'frameworkDevOps', 'lastSavedAt',
@@ -51,7 +52,7 @@ const BOOLEANS: (keyof GameState)[] = [
 ];
 
 const HOTKEY_NAMES: (keyof GameState['hotkeys'])[] = [
-  'click', 'tab_terminal', 'tab_automation', 'tab_ascension',
+  'tab_terminal', 'tab_automation', 'tab_ascension',
   'tab_metrics', 'tab_framework', 'tab_cloud', 'tab_config', 'tab_archive',
   'buy_0', 'buy_1', 'buy_2', 'cycle_mode',
 ];
@@ -99,13 +100,6 @@ export function validateState(
 
   if (isPosOrZero(loaded.version) && Number.isInteger(loaded.version)) {
     result.version = loaded.version as number;
-  }
-
-  if (
-    Array.isArray(loaded.clickHistory) &&
-    (loaded.clickHistory as unknown[]).every(isFiniteNum)
-  ) {
-    result.clickHistory = loaded.clickHistory as number[];
   }
 
   if (loaded.hotkeys && typeof loaded.hotkeys === 'object' && !Array.isArray(loaded.hotkeys)) {

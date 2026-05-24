@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import type { GameState } from '../../types/game';
 import { defaultState, ALL_HOTKEY_ACTIONS } from '../../types/game';
 import { saveState, serializeState, deserializeState } from '../../hooks/useGameState';
+import { glowButton } from '../../utils/buttonGlow';
 
 interface Props {
   state: GameState;
@@ -103,7 +104,8 @@ export default function ConfigTab({ state, setState, addLog }: Props) {
 
       <div className="glass-card p-4">
         <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider mb-2">Notation</h3>
-        <button onClick={toggleNotation}
+        <button onClick={(e) => { glowButton(e.currentTarget); toggleNotation(); }}
+          data-action="toggle-notation"
           className="w-full py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">
           {state.useScientific ? 'Scientific' : 'Standard'}
         </button>
@@ -111,7 +113,8 @@ export default function ConfigTab({ state, setState, addLog }: Props) {
 
       <div className="glass-card p-4">
         <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider mb-2">Offline Progress</h3>
-        <button onClick={toggleOfflineProgress}
+        <button onClick={(e) => { glowButton(e.currentTarget); toggleOfflineProgress(); }}
+          data-action="toggle-offline"
           className="w-full py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">
           {state.offlineProgressEnabled ? 'Enabled' : 'Disabled'}
         </button>
@@ -119,24 +122,47 @@ export default function ConfigTab({ state, setState, addLog }: Props) {
 
       <div className="glass-card p-4">
         <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider mb-2">Sound</h3>
-        <button onClick={() => setState({ ...state, soundEnabled: !state.soundEnabled })}
+        <button onClick={(e) => { glowButton(e.currentTarget); setState({ ...state, soundEnabled: !state.soundEnabled }); }}
+          data-action="toggle-sound"
           className="w-full py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">
           {state.soundEnabled ? 'Enabled' : 'Disabled'}
         </button>
       </div>
 
       <div className="glass-card p-4">
+        <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider mb-2">Music</h3>
+        <button onClick={(e) => { glowButton(e.currentTarget); setState({ ...state, musicEnabled: !state.musicEnabled }); }}
+          data-action="toggle-music"
+          className="w-full py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">
+          {state.musicEnabled ? 'Enabled' : 'Disabled'}
+        </button>
+      </div>
+
+      <div className="glass-card p-4">
+        <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider mb-2">Notifications</h3>
+        <button onClick={(e) => { glowButton(e.currentTarget); setState({ ...state, showNotifications: !state.showNotifications }); }}
+          data-action="toggle-notifications"
+          className="w-full py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">
+          {state.showNotifications ? 'Enabled' : 'Disabled'}
+        </button>
+      </div>
+
+      <div className="glass-card p-4">
         <h3 className="text-[0.65rem] text-neon-300 uppercase tracking-wider mb-2">Data</h3>
         <div className="flex gap-2 mb-2">
-          <button onClick={handleSave}
+          <button onClick={(e) => { glowButton(e.currentTarget); handleSave(); }}
+            data-action="save"
             className="flex-1 py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">Save</button>
-          <button onClick={handleWipe}
+          <button onClick={(e) => { glowButton(e.currentTarget); handleWipe(); }}
+            data-action="wipe"
             className="flex-1 py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">Wipe</button>
         </div>
         <div className="flex gap-2">
-          <button onClick={handleExport}
+          <button onClick={(e) => { glowButton(e.currentTarget); handleExport(); }}
+            data-action="export"
             className="flex-1 py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">Export</button>
-          <button onClick={handleImport}
+          <button onClick={(e) => { glowButton(e.currentTarget); handleImport(); }}
+            data-action="import"
             className="flex-1 py-2 rounded border border-dark-400 text-dark-200 text-[0.65rem] hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">Import</button>
         </div>
         <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" />

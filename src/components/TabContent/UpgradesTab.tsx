@@ -1,9 +1,17 @@
-import { useState } from 'react';
-import type { GameState } from '../../types/game';
-import { KB_THRESHOLDS, KB_COSTS, LINT_THRESHOLDS, LINT_COSTS, FLUX_THRESHOLDS, FLUX_COSTS } from '../../types/game';
-import { formatNum, fluxCost, getVisiblePerkTier } from '../../utils/math';
-import { sub, lt, gte, fromNumber, mul } from '../../utils/BigNum';
-import type { BigNum } from '../../utils/BigNum';
+import { useState } from "react";
+import type { GameState } from "../../types/game";
+import {
+  KB_THRESHOLDS,
+  KB_COSTS,
+  LINT_THRESHOLDS,
+  LINT_COSTS,
+  FLUX_THRESHOLDS,
+  FLUX_COSTS,
+} from "../../types/game";
+import { formatNum, fluxCost, getVisiblePerkTier } from "../../utils/math";
+import { sub, lt, gte, fromNumber, mul } from "../../utils/BigNum";
+import type { BigNum } from "../../utils/BigNum";
+import { glowButton } from "../../utils/buttonGlow";
 
 interface Props {
   state: GameState;
@@ -11,22 +19,82 @@ interface Props {
   addLog: (msg: string) => void;
 }
 
-const SUB_TABS = ['Mastery', 'Item Perks', 'Future+'] as const;
+const SUB_TABS = ["Mastery", "Item Perks", "Future+"] as const;
 
 const MASTERIES = [
-  { key: 'masteryMultiThreaded', cost: 2, label: 'Multi-Threaded Scripting', desc: 'x2 click power' },
-  { key: 'masteryAlgorithm', cost: 5, label: 'Algorithm Efficiency', desc: 'Linters give 50% XP' },
-  { key: 'masteryCloudCredit', cost: 10, label: 'Cloud Credit', desc: '15% shop discount' },
-  { key: 'masteryFocusScroll', cost: 1, label: 'Focus Scroll', desc: '+2% click power' },
-  { key: 'masteryTidyComments', cost: 1, label: 'Tidy Comments', desc: '+1% money/line' },
-  { key: 'masteryCodeReview', cost: 2, label: 'Code Review', desc: '+2% auto speed' },
-  { key: 'masteryPairProgram', cost: 2, label: 'Pair Program', desc: '+1% global prod' },
-  { key: 'masteryStandupSync', cost: 2, label: 'Stand-Up Sync', desc: '+2% click & auto' },
-  { key: 'masteryAgileRetro', cost: 2, label: 'Agile Retro', desc: '+2% money/line' },
-  { key: 'masteryRefactorPro', cost: 2, label: 'Refactor Pro', desc: '+2% auto speed' },
-  { key: 'masteryTestDriven', cost: 1, label: 'Test-Driven Dev', desc: '+1% click power' },
-  { key: 'masteryShipIt', cost: 3, label: 'Ship It', desc: '+3% money/line' },
-  { key: 'masterySprintSprint', cost: 3, label: 'Sprint Sprint', desc: '+3% click & auto' },
+  {
+    key: "masteryMultiThreaded",
+    cost: 2,
+    label: "Multi-Threaded Scripting",
+    desc: "x2 click power",
+  },
+  {
+    key: "masteryAlgorithm",
+    cost: 5,
+    label: "Algorithm Efficiency",
+    desc: "Linters give 50% XP",
+  },
+  {
+    key: "masteryCloudCredit",
+    cost: 10,
+    label: "Cloud Credit",
+    desc: "15% shop discount",
+  },
+  {
+    key: "masteryFocusScroll",
+    cost: 1,
+    label: "Focus Scroll",
+    desc: "+2% click power",
+  },
+  {
+    key: "masteryTidyComments",
+    cost: 1,
+    label: "Tidy Comments",
+    desc: "+1% money/line",
+  },
+  {
+    key: "masteryCodeReview",
+    cost: 2,
+    label: "Code Review",
+    desc: "+2% auto speed",
+  },
+  {
+    key: "masteryPairProgram",
+    cost: 2,
+    label: "Pair Program",
+    desc: "+1% global prod",
+  },
+  {
+    key: "masteryStandupSync",
+    cost: 2,
+    label: "Stand-Up Sync",
+    desc: "+2% click & auto",
+  },
+  {
+    key: "masteryAgileRetro",
+    cost: 2,
+    label: "Agile Retro",
+    desc: "+2% money/line",
+  },
+  {
+    key: "masteryRefactorPro",
+    cost: 2,
+    label: "Refactor Pro",
+    desc: "+2% auto speed",
+  },
+  {
+    key: "masteryTestDriven",
+    cost: 1,
+    label: "Test-Driven Dev",
+    desc: "+1% click power",
+  },
+  { key: "masteryShipIt", cost: 3, label: "Ship It", desc: "+3% money/line" },
+  {
+    key: "masterySprintSprint",
+    cost: 3,
+    label: "Sprint Sprint",
+    desc: "+3% click & auto",
+  },
 ];
 
 export default function UpgradesTab({ state, setState, addLog }: Props) {
@@ -37,13 +105,14 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
     if ((state as any)[key] || av < cost) return;
     const next = { ...state, spentLevels: state.spentLevels + cost };
     (next as any)[key] = true;
-    if (key === 'masteryAlgorithm') addLog('Mastery: Algorithm Efficiency — linters now give 50% XP');
+    if (key === "masteryAlgorithm")
+      addLog("Mastery: Algorithm Efficiency — linters now give 50% XP");
     setState(next);
     addLog(`Mastery: ${label}`);
   };
 
   const buyAllMasteries = () => {
-    let next = { ...state };
+    const next = { ...state };
     for (const m of MASTERIES) {
       if ((next as any)[m.key]) continue;
       const a = next.vibeLevel - next.spentLevels;
@@ -52,44 +121,94 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
       (next as any)[m.key] = true;
     }
     setState(next);
-    addLog('All affordable masteries purchased.');
+    addLog("All affordable masteries purchased.");
   };
 
   const buyFlux = () => {
     const c = fluxCost(state.fluxOwned);
     if (state.edOwned < 5 || lt(state.money, c)) return;
-    setState({ ...state, money: sub(state.money, c), fluxOwned: state.fluxOwned + 1 });
+    setState({
+      ...state,
+      money: sub(state.money, c),
+      fluxOwned: state.fluxOwned + 1,
+    });
   };
 
-  const buyPerk = (key: 'perkEdTier' | 'perkKbTier' | 'perkLintTier' | 'perkFluxTier', tier: number, cost: number) => {
-    if ((state as any)[key] >= tier || lt(state.money, fromNumber(cost))) return;
-    setState({ ...state, money: sub(state.money, fromNumber(cost)), [key]: tier });
+  const buyPerk = (
+    key: "perkEdTier" | "perkKbTier" | "perkLintTier" | "perkFluxTier",
+    tier: number,
+    cost: number,
+  ) => {
+    if ((state as any)[key] >= tier || lt(state.money, fromNumber(cost)))
+      return;
+    setState({
+      ...state,
+      money: sub(state.money, fromNumber(cost)),
+      [key]: tier,
+    });
   };
 
   const buyAllPerks = () => {
-    let next = { ...state };
+    const next = { ...state };
     // ED perks
-    if (next.edOwned >= 3 && next.perkEdTier < 1 && gte(next.money, fromNumber(500))) {
-      next.money = sub(next.money, fromNumber(500)); next.perkEdTier = 1;
+    if (
+      next.edOwned >= 3 &&
+      next.perkEdTier < 1 &&
+      gte(next.money, fromNumber(500))
+    ) {
+      next.money = sub(next.money, fromNumber(500));
+      next.perkEdTier = 1;
     }
-    if (next.edOwned >= 5 && next.perkEdTier < 2 && gte(next.money, fromNumber(2000))) {
-      next.money = sub(next.money, fromNumber(2000)); next.perkEdTier = 2;
+    if (
+      next.edOwned >= 5 &&
+      next.perkEdTier < 2 &&
+      gte(next.money, fromNumber(2000))
+    ) {
+      next.money = sub(next.money, fromNumber(2000));
+      next.perkEdTier = 2;
     }
     // KB perk
-    const kbIdx = getVisiblePerkTier(next.kbOwned, next.money, KB_THRESHOLDS, KB_COSTS);
-    if (kbIdx !== null && gte(next.money, fromNumber(KB_COSTS[kbIdx])) && next.perkKbTier <= kbIdx) {
+    const kbIdx = getVisiblePerkTier(
+      next.kbOwned,
+      next.money,
+      KB_THRESHOLDS,
+      KB_COSTS,
+    );
+    if (
+      kbIdx !== null &&
+      gte(next.money, fromNumber(KB_COSTS[kbIdx])) &&
+      next.perkKbTier <= kbIdx
+    ) {
       next.money = sub(next.money, fromNumber(KB_COSTS[kbIdx]));
       next.perkKbTier = kbIdx + 1;
     }
     // Lint perk
-    const lintIdx = getVisiblePerkTier(next.lintOwned, next.money, LINT_THRESHOLDS, LINT_COSTS);
-    if (lintIdx !== null && gte(next.money, fromNumber(LINT_COSTS[lintIdx])) && next.perkLintTier <= lintIdx) {
+    const lintIdx = getVisiblePerkTier(
+      next.lintOwned,
+      next.money,
+      LINT_THRESHOLDS,
+      LINT_COSTS,
+    );
+    if (
+      lintIdx !== null &&
+      gte(next.money, fromNumber(LINT_COSTS[lintIdx])) &&
+      next.perkLintTier <= lintIdx
+    ) {
       next.money = sub(next.money, fromNumber(LINT_COSTS[lintIdx]));
       next.perkLintTier = lintIdx + 1;
     }
     // Flux perk
-    const fluxIdx = getVisiblePerkTier(next.fluxOwned, next.money, FLUX_THRESHOLDS, FLUX_COSTS);
-    if (fluxIdx !== null && gte(next.money, fromNumber(FLUX_COSTS[fluxIdx])) && next.perkFluxTier <= fluxIdx) {
+    const fluxIdx = getVisiblePerkTier(
+      next.fluxOwned,
+      next.money,
+      FLUX_THRESHOLDS,
+      FLUX_COSTS,
+    );
+    if (
+      fluxIdx !== null &&
+      gte(next.money, fromNumber(FLUX_COSTS[fluxIdx])) &&
+      next.perkFluxTier <= fluxIdx
+    ) {
       next.money = sub(next.money, fromNumber(FLUX_COSTS[fluxIdx]));
       next.perkFluxTier = fluxIdx + 1;
     }
@@ -101,16 +220,19 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
       }
     }
     setState(next);
-    addLog('All affordable perks purchased.');
+    addLog("All affordable perks purchased.");
   };
 
   return (
     <div>
       <div className="flex gap-1 mb-3">
         {SUB_TABS.map((label, i) => (
-          <button key={label} onClick={() => setSubTab(i)}
+          <button
+            key={label}
+            onClick={() => setSubTab(i)}
             className={`flex-1 py-1.5 text-[0.6rem] uppercase tracking-wider rounded-t border-b-2 transition-all cursor-pointer
-              ${subTab === i ? 'border-neon-300 text-neon-300' : 'border-transparent text-dark-400 hover:text-dark-200'}`}>
+              ${subTab === i ? "border-neon-300 text-neon-300" : "border-transparent text-dark-400 hover:text-dark-200"}`}
+          >
             {label}
           </button>
         ))}
@@ -118,24 +240,44 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
 
       {subTab === 0 && (
         <div>
-          <button onClick={buyAllMasteries}
+          <button
+            onClick={(e) => {
+              glowButton(e.currentTarget);
+              buyAllMasteries();
+            }}
+            data-action="buy-all-masteries"
             className="w-full mb-2 py-1.5 rounded border border-neon-300/30 text-neon-300 text-[0.6rem] hover:bg-neon-300/10 cursor-pointer uppercase tracking-wider transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            disabled={MASTERIES.every(m => (state as any)[m.key])}>
+            disabled={MASTERIES.every((m) => (state as any)[m.key])}
+          >
             Buy All Masteries
           </button>
           <div className="space-y-2">
-            {MASTERIES.map(m => {
+            {MASTERIES.map((m) => {
               const owned = (state as any)[m.key];
               if (owned) return null;
               return (
-                <div key={m.key} className="glass-card p-3 flex items-center gap-3">
+                <div
+                  key={m.key}
+                  className="glass-card p-3 flex items-center gap-3"
+                >
                   <div className="flex-1">
-                    <div className="text-[0.7rem] text-dark-100 uppercase tracking-wider">{m.label}</div>
+                    <div className="text-[0.7rem] text-dark-100 uppercase tracking-wider">
+                      {m.label}
+                    </div>
                     <div className="text-[0.6rem] text-dark-300">{m.desc}</div>
-                    <div className="text-[0.6rem] text-neon-300">{m.cost} Level{m.cost > 1 ? 's' : ''}</div>
+                    <div className="text-[0.6rem] text-neon-300">
+                      {m.cost} Level{m.cost > 1 ? "s" : ""}
+                    </div>
                   </div>
-                  <button onClick={() => buyMastery(m.key, m.cost, m.label)} disabled={av < m.cost}
-                    className="text-[0.65rem] px-3 py-1.5 rounded border border-neon-300/40 text-neon-300 hover:bg-neon-300/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-all uppercase tracking-wider">
+                  <button
+                    onClick={(e) => {
+                      glowButton(e.currentTarget);
+                      buyMastery(m.key, m.cost, m.label);
+                    }}
+                    disabled={av < m.cost}
+                    data-action={`buy-mastery-${m.key}`}
+                    className="text-[0.65rem] px-3 py-1.5 rounded border border-neon-300/40 text-neon-300 hover:bg-neon-300/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-all uppercase tracking-wider"
+                  >
                     Buy
                   </button>
                 </div>
@@ -147,62 +289,147 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
 
       {subTab === 1 && (
         <div>
-          <button onClick={buyAllPerks}
-            className="w-full mb-2 py-1.5 rounded border border-neon-300/30 text-neon-300 text-[0.6rem] hover:bg-neon-300/10 cursor-pointer uppercase tracking-wider transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+          <button
+            onClick={(e) => {
+              glowButton(e.currentTarget);
+              buyAllPerks();
+            }}
+            data-action="buy-all-perks"
+            className="w-full mb-2 py-1.5 rounded border border-neon-300/30 text-neon-300 text-[0.6rem] hover:bg-neon-300/10 cursor-pointer uppercase tracking-wider transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
             Buy All Perks
           </button>
 
           {/* ED Perks */}
           {state.edOwned >= 3 && state.perkEdTier < 1 && (
-            <PerkCard title="Double Shot" desc="ED click power +25%" cost={500}
-              show={gte(state.money, fromNumber(450))} onBuy={() => buyPerk('perkEdTier', 1, 500)} />
+            <PerkCard
+              title="Double Shot"
+              desc="ED click power +25%"
+              cost={500}
+              show={gte(state.money, fromNumber(450))}
+              onBuy={() => buyPerk("perkEdTier", 1, 500)}
+            />
           )}
           {state.edOwned >= 5 && state.perkEdTier < 2 && (
-            <PerkCard title="Caffeine IV" desc="ED click power +50%" cost={2000}
-              show={gte(state.money, fromNumber(1800))} onBuy={() => buyPerk('perkEdTier', 2, 2000)} />
+            <PerkCard
+              title="Caffeine IV"
+              desc="ED click power +50%"
+              cost={2000}
+              show={gte(state.money, fromNumber(1800))}
+              onBuy={() => buyPerk("perkEdTier", 2, 2000)}
+            />
           )}
 
           {/* KB Perk */}
           {(() => {
-            const idx = getVisiblePerkTier(state.kbOwned, state.money, KB_THRESHOLDS, KB_COSTS);
+            const idx = getVisiblePerkTier(
+              state.kbOwned,
+              state.money,
+              KB_THRESHOLDS,
+              KB_COSTS,
+            );
             if (idx === null || state.perkKbTier > idx) return null;
-            const names = ['O-Ring Swap', 'Cherry MX', 'Linear Switch', 'Topre Electrostatic', 'Hall Effect', 'Optical Switch', 'Singularity Keyboard', 'Quantum Keyboard', 'Plasma Interface', 'Neural Implant', 'Cosmic Cortex', 'Universal Mind'];
+            const names = [
+              "O-Ring Swap",
+              "Cherry MX",
+              "Linear Switch",
+              "Topre Electrostatic",
+              "Hall Effect",
+              "Optical Switch",
+              "Singularity Keyboard",
+              "Quantum Keyboard",
+              "Plasma Interface",
+              "Neural Implant",
+              "Cosmic Cortex",
+              "Universal Mind",
+            ];
             return (
-              <PerkCard title={names[idx] || 'Keyboard Perk'} desc={`KB click power +${[25, 50, 100, 150, 200, 300, 500, 800, 1200, 2000, 3400, 5500][idx]}%`}
-                cost={KB_COSTS[idx]} show={gte(state.money, fromNumber(KB_COSTS[idx] * 0.9))}
-                onBuy={() => buyPerk('perkKbTier', idx + 1, KB_COSTS[idx])} />
+              <PerkCard
+                title={names[idx] || "Keyboard Perk"}
+                desc={`KB click power +${[25, 50, 100, 150, 200, 300, 500, 800, 1200, 2000, 3400, 5500][idx]}%`}
+                cost={KB_COSTS[idx]}
+                show={gte(state.money, fromNumber(KB_COSTS[idx] * 0.9))}
+                onBuy={() => buyPerk("perkKbTier", idx + 1, KB_COSTS[idx])}
+              />
             );
           })()}
 
           {/* Lint Perk */}
           {(() => {
-            const idx = getVisiblePerkTier(state.lintOwned, state.money, LINT_THRESHOLDS, LINT_COSTS);
+            const idx = getVisiblePerkTier(
+              state.lintOwned,
+              state.money,
+              LINT_THRESHOLDS,
+              LINT_COSTS,
+            );
             if (idx === null || state.perkLintTier > idx) return null;
-            const names = ['Syntax Sensei', 'Parallel Lint', 'Distributed Lint', 'Sentient Linter', 'Autonomous Refactor', 'Quantum Linter', 'Self-Writing Code', 'AI Overlord', 'Singularity Linter', 'Cosmic Code', 'Universal Syntax', 'Omniscient Compiler'];
+            const names = [
+              "Syntax Sensei",
+              "Parallel Lint",
+              "Distributed Lint",
+              "Sentient Linter",
+              "Autonomous Refactor",
+              "Quantum Linter",
+              "Self-Writing Code",
+              "AI Overlord",
+              "Singularity Linter",
+              "Cosmic Code",
+              "Universal Syntax",
+              "Omniscient Compiler",
+            ];
             return (
-              <PerkCard title={names[idx] || 'Linter Perk'} desc={`Linter speed +${[25, 50, 100, 150, 200, 300, 500, 800, 1200, 2000, 3400, 5500][idx]}%`}
-                cost={LINT_COSTS[idx]} show={gte(state.money, fromNumber(LINT_COSTS[idx] * 0.9))}
-                onBuy={() => buyPerk('perkLintTier', idx + 1, LINT_COSTS[idx])} />
+              <PerkCard
+                title={names[idx] || "Linter Perk"}
+                desc={`Linter speed +${[25, 50, 100, 150, 200, 300, 500, 800, 1200, 2000, 3400, 5500][idx]}%`}
+                cost={LINT_COSTS[idx]}
+                show={gte(state.money, fromNumber(LINT_COSTS[idx] * 0.9))}
+                onBuy={() => buyPerk("perkLintTier", idx + 1, LINT_COSTS[idx])}
+              />
             );
           })()}
 
           {/* Flux Perk */}
           {(() => {
-            const idx = getVisiblePerkTier(state.fluxOwned, state.money, FLUX_THRESHOLDS, FLUX_COSTS);
+            const idx = getVisiblePerkTier(
+              state.fluxOwned,
+              state.money,
+              FLUX_THRESHOLDS,
+              FLUX_COSTS,
+            );
             if (idx === null || state.perkFluxTier > idx) return null;
-            const names = ['Overclock', 'Sustain', 'Amplify', 'Resonate', 'Harmonize', 'Stabilize', 'Ascend'];
+            const names = [
+              "Overclock",
+              "Sustain",
+              "Amplify",
+              "Resonate",
+              "Harmonize",
+              "Stabilize",
+              "Ascend",
+            ];
             return (
-              <PerkCard title={names[idx] || 'Flux Perk'} desc={`Flux power +${[50, 100, 200, 350, 550, 900, 1450][idx]}%`}
-                cost={FLUX_COSTS[idx]} show={gte(state.money, fromNumber(FLUX_COSTS[idx] * 0.9))}
-                onBuy={() => buyPerk('perkFluxTier', idx + 1, FLUX_COSTS[idx])} />
+              <PerkCard
+                title={names[idx] || "Flux Perk"}
+                desc={`Flux power +${[50, 100, 200, 350, 550, 900, 1450][idx]}%`}
+                cost={FLUX_COSTS[idx]}
+                show={gte(state.money, fromNumber(FLUX_COSTS[idx] * 0.9))}
+                onBuy={() => buyPerk("perkFluxTier", idx + 1, FLUX_COSTS[idx])}
+              />
             );
           })()}
 
           {/* Energy Flux */}
           {state.edOwned >= 5 && (
-            <PerkCard title="Energy Flux" desc={`Reduces KB/Lint costs by 5%/level`}
-              cost={fluxCost(state.fluxOwned)} show={gte(state.money, mul(fluxCost(state.fluxOwned), fromNumber(0.9)))}
-              onBuy={buyFlux} ownedCount={state.fluxOwned} />
+            <PerkCard
+              title="Energy Flux"
+              desc={`Reduces KB/Lint costs by 5%/level`}
+              cost={fluxCost(state.fluxOwned)}
+              show={gte(
+                state.money,
+                mul(fluxCost(state.fluxOwned), fromNumber(0.9)),
+              )}
+              onBuy={buyFlux}
+              ownedCount={state.fluxOwned}
+            />
           )}
         </div>
       )}
@@ -210,28 +437,54 @@ export default function UpgradesTab({ state, setState, addLog }: Props) {
       {subTab === 2 && (
         <div className="glass-card p-6 text-center">
           <p className="text-[0.65rem] text-dark-400 italic">
-            Additional upgrade categories will appear here as new features are added.
+            Additional upgrade categories will appear here as new features are
+            added.
           </p>
-          <p className="text-[0.55rem] text-dark-500 mt-2">// FUTURE EXPANSION SLOT</p>
+          <p className="text-[0.55rem] text-dark-500 mt-2">
+            // FUTURE EXPANSION SLOT
+          </p>
         </div>
       )}
     </div>
   );
 }
 
-function PerkCard({ title, desc, cost, show, onBuy, ownedCount }: {
-  title: string; desc: string; cost: number | BigNum; show: boolean; onBuy: () => void; ownedCount?: number;
+function PerkCard({
+  title,
+  desc,
+  cost,
+  show,
+  onBuy,
+  ownedCount,
+}: {
+  title: string;
+  desc: string;
+  cost: number | BigNum;
+  show: boolean;
+  onBuy: (e?: React.MouseEvent<HTMLElement> | null) => void;
+  ownedCount?: number;
 }) {
   if (!show) return null;
   return (
     <div className="glass-card p-3 flex items-center gap-3 mb-2 border-l-2 border-neon-300/40">
       <div className="flex-1">
-        <div className="text-[0.7rem] text-dark-100 uppercase tracking-wider">{title}</div>
+        <div className="text-[0.7rem] text-dark-100 uppercase tracking-wider">
+          {title}
+        </div>
         <div className="text-[0.6rem] text-dark-300">{desc}</div>
-        <div className="text-[0.6rem] text-neon-300">Cost: ${formatNum(cost, false)}{ownedCount !== undefined ? `  · Owned: ${ownedCount}` : ''}</div>
+        <div className="text-[0.6rem] text-neon-300">
+          Cost: ${formatNum(cost, false)}
+          {ownedCount !== undefined ? `  · Owned: ${ownedCount}` : ""}
+        </div>
       </div>
-      <button onClick={onBuy}
-        className="text-[0.65rem] px-3 py-1.5 rounded border border-neon-300/40 text-neon-300 hover:bg-neon-300/10 cursor-pointer transition-all uppercase tracking-wider">
+      <button
+        onClick={(e) => {
+          glowButton(e.currentTarget);
+          onBuy(e);
+        }}
+        data-action="buy-perk"
+        className="text-[0.65rem] px-3 py-1.5 rounded border border-neon-300/40 text-neon-300 hover:bg-neon-300/10 cursor-pointer transition-all uppercase tracking-wider"
+      >
         Buy
       </button>
     </div>

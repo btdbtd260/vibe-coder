@@ -73,6 +73,8 @@ export interface GameState {
   useScientific: boolean;
   offlineProgressEnabled: boolean;
   soundEnabled: boolean;
+  musicEnabled: boolean;
+  showNotifications: boolean;
   buyModeIndex: number;
   hotkeys: {
     click: string;
@@ -117,7 +119,7 @@ export const defaultState: GameState = {
   vibeLevel: 0, vibeXP: BN_ZERO, spentLevels: 0,
   ascensionMultiplier: BN_ONE, ascensionCount: 0, lintMilestoneBoost: 1,
   totalLinesEver: BN_ZERO, totalClicks: 0, totalPlayedMs: 0, maxLPS: BN_ZERO,
-  useScientific: false, offlineProgressEnabled: true, soundEnabled: false, buyModeIndex: 0,
+  useScientific: false, offlineProgressEnabled: true, soundEnabled: false, musicEnabled: false, showNotifications: true, buyModeIndex: 0,
   hotkeys: {
     click: ' ',
     tab_terminal: '1', tab_automation: '2', tab_ascension: '3',
@@ -130,7 +132,7 @@ export const defaultState: GameState = {
   currentLPS: BN_ZERO,
   frameworkPoints: 0, totalFrameworkPoints: 0, frameworkLevel: 0, frameworkCodeReview: 0, frameworkDevOps: 0,
   seniorPoints: 0, totalSeniorPoints: 0, seniorLines: BN_ZERO,
-  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 11, lastSavedAt: 0,
+  retentionLevel: 0, autoBuyerActive: false, onboardingSeen: false, sfLevel: 0, version: 13, lastSavedAt: 0,
   autoEditors: { enabled: false, buyCheapest: true, moneyReservePct: 10, buyMode: '1x', intervalSec: 5 },
   autoUpgrades: { enabled: false, buyCheapest: true, moneyReservePct: 25, vibeReservePct: 10, intervalSec: 10 },
   autoAscension: { enabled: false, thresholdMultiplier: 2, minimumRunTimeSec: 300, intervalSec: 30 },

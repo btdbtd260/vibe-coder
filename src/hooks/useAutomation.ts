@@ -1,20 +1,28 @@
-import { useEffect, useRef } from 'react';
-import type { GameState } from '../types/game';
-import { autoTick, autoBuyEditors, autoBuyUpgrades, autoAscend } from './useGameState';
+import { useEffect, useRef } from "react";
+import type { GameState } from "../types/game";
+import {
+  autoTick,
+  autoBuyEditors,
+  autoBuyUpgrades,
+  autoAscend,
+} from "./useGameState";
 
 export function useAutomation(
   setState: (s: GameState | ((prev: GameState) => GameState)) => void,
   speed: number,
 ) {
-  const lastAutoEditorRef = useRef(Date.now());
-  const lastAutoUpgradeRef = useRef(Date.now());
-  const lastAutoAscensionRef = useRef(Date.now());
+  const lastAutoEditorRef = useRef(0);
+  const lastAutoUpgradeRef = useRef(0);
+  const lastAutoAscensionRef = useRef(0);
 
   useEffect(() => {
+    lastAutoEditorRef.current = Date.now();
+    lastAutoUpgradeRef.current = Date.now();
+    lastAutoAscensionRef.current = Date.now();
     const id = setInterval(() => {
       const now = Date.now();
 
-      setState(prev => {
+      setState((prev) => {
         let next = autoTick(prev);
 
         if (next.autoEditors.enabled) {

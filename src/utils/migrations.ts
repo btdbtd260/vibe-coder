@@ -1,7 +1,7 @@
 import type { GameState } from '../types/game';
 import { fromNumber, BN_ZERO } from './BigNum';
 
-export const CURRENT_SAVE_VERSION = 11;
+export const CURRENT_SAVE_VERSION = 13;
 
 type Migration = (state: GameState) => GameState;
 
@@ -13,6 +13,10 @@ const migrations: Record<number, Migration> = {
   8: (s) => ({ ...s }),
   9: (s) => ({ ...(s as any), frameworkPoints: 0, totalFrameworkPoints: 0, frameworkLevel: 0, frameworkCodeReview: 0, frameworkDevOps: 0 }) as GameState,
   10: (s) => ({ ...(s as any), seniorLines: BN_ZERO, perkFluxTier: 0 }) as GameState,
+  // v12: add musicEnabled
+  12: (s) => ({ ...(s as any), musicEnabled: (s as any).musicEnabled ?? false }) as GameState,
+  // v13: add showNotifications
+  13: (s) => ({ ...(s as any), showNotifications: (s as any).showNotifications ?? true }) as GameState,
   11: (s) => ({
     ...(s as any),
     lines: typeof (s as any).lines === 'number' ? fromNumber((s as any).lines) : (s as any).lines,

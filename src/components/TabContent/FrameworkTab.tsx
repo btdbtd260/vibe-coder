@@ -1,6 +1,7 @@
-import type { GameState } from '../../types/game';
+﻿import type { GameState } from '../../types/game';
 import type { BigNum } from '../../utils/BigNum';
 import { formatNum, FRAMEWORK_PRESTIGE_THRESHOLD, frameworkPointsToGain, performFrameworkPrestige, frameworkCost } from '../../utils/math';
+import { glowButton } from '../../utils/buttonGlow';
 
 const toNum = (v: BigNum): number => v.m * Math.pow(10, v.e);
 
@@ -9,15 +10,21 @@ interface Props {
   setState: (s: GameState) => void;
   addLog: (msg: string) => void;
   soundPrestige?: () => void;
+  spawnBurst?: (x: number, y: number, count?: number, texts?: string[]) => void;
 }
 
-export default function FrameworkTab({ state, setState, addLog, soundPrestige }: Props) {
+export default function FrameworkTab({ state, setState, addLog, soundPrestige, spawnBurst }: Props) {
   const s = state.useScientific;
   const canPrestige = state.totalSeniorPoints >= FRAMEWORK_PRESTIGE_THRESHOLD;
   const gain = frameworkPointsToGain(state.totalSeniorPoints);
   const hasFramed = state.totalFrameworkPoints > 0 || state.frameworkLevel > 0;
 
-  const doPrestige = () => {
+  const doPrestige = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    if (spawnBurst) {
+      const cx = e ? e.clientX : window.innerWidth / 2;
+      const cy = e ? e.clientY : window.innerHeight / 2;
+      spawnBurst(cx, cy, 16, ["FRAMEWORK", "✦", "⬆", "+FP", "🌟"]);
+    }
     if (!canPrestige) return;
     const next = performFrameworkPrestige(state);
     setState(next);
@@ -56,9 +63,10 @@ export default function FrameworkTab({ state, setState, addLog, soundPrestige }:
         <div className="text-[0.55rem] text-dark-500">Framework Level: {formatNum(state.frameworkLevel ?? 0, s)}</div>
       </div>
 
-      <button onClick={doPrestige} disabled={!canPrestige || gain <= 0}
+      <button onClick={(e) => { glowButton(e.currentTarget); doPrestige(e); }} disabled={!canPrestige || gain <= 0}
+        data-action="framework-prestige"
         className="w-full py-3 rounded-lg border-2 border-neon-300/60 text-neon-300 font-bold text-xs hover:bg-neon-300/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer uppercase tracking-wider transition-all">
-        {gain > 0 ? `Framework Prestige — Gain ${formatNum(gain, s)} FP` : `Need ${formatNum(FRAMEWORK_PRESTIGE_THRESHOLD, s)} total SP`}
+        {gain > 0 ? `Framework Prestige â€” Gain ${formatNum(gain, s)} FP` : `Need ${formatNum(FRAMEWORK_PRESTIGE_THRESHOLD, s)} total SP`}
       </button>
 
       <div className="glass-card p-3">
@@ -94,7 +102,7 @@ function UpgradeRow({ title, desc, level, maxLevel, cost, points, onBuy }: {
   maxLevel: number;
   cost: BigNum;
   points: number;
-  onBuy: () => void;
+  onBuy: (e?: React.MouseEvent<HTMLElement> | null) => void;
 }) {
   const maxed = level >= maxLevel;
   return (
@@ -106,7 +114,8 @@ function UpgradeRow({ title, desc, level, maxLevel, cost, points, onBuy }: {
       </div>
       <div className="text-right">
         <div className="text-[0.55rem] text-dark-400 mb-1">{maxed ? 'MAXED' : `${formatNum(cost, false)} FP`}</div>
-        <button onClick={onBuy} disabled={maxed || points < toNum(cost)}
+        <button onClick={(e) => { glowButton(e.currentTarget); onBuy(e); }} disabled={maxed || points < toNum(cost)}
+          data-action={`buy-${title.toLowerCase().replace(/\s+/g, '-')}`}
           className="text-[0.65rem] px-3 py-1.5 rounded border border-neon-300/40 text-neon-300 hover:bg-neon-300/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-all uppercase tracking-wider">
           {maxed ? 'MAX' : 'Buy'}
         </button>

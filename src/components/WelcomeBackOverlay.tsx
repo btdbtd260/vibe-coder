@@ -1,5 +1,6 @@
-import type { OfflineGains } from '../hooks/useGameState';
-import { formatNum, formatMoney } from '../utils/math';
+import type { OfflineGains } from "../hooks/useGameState";
+import { formatNum, formatMoney } from "../utils/math";
+import { useAnimatedNumber } from "../utils/animatedNumber";
 
 interface Props {
   gains: OfflineGains;
@@ -19,23 +20,36 @@ function formatDuration(ms: number): string {
 }
 
 export default function WelcomeBackOverlay({ gains, onDismiss }: Props) {
+  const animLines = useAnimatedNumber(gains.gainedLines, 600);
+  const animMoney = useAnimatedNumber(gains.gainedMoney, 600);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="glass-card p-6 w-80 max-w-[90vw] border-neon-300/30">
-        <h2 className="text-sm text-neon-300 text-center uppercase tracking-wider mb-4">Welcome Back!</h2>
-        <p className="text-[0.65rem] text-dark-300 text-center mb-4">While you were away...</p>
+        <h2 className="text-sm text-neon-300 text-center uppercase tracking-wider mb-4">
+          Welcome Back!
+        </h2>
+        <p className="text-[0.65rem] text-dark-300 text-center mb-4">
+          While you were away...
+        </p>
         <div className="space-y-3 text-[0.7rem] mb-4">
           <div className="flex justify-between">
             <span className="text-dark-300">Time Away</span>
-            <span className="text-neon-300 font-bold">{formatDuration(gains.elapsedMs)}</span>
+            <span className="text-neon-300 font-bold">
+              {formatDuration(gains.elapsedMs)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-dark-300">Lines Earned</span>
-            <span className="text-neon-300 font-bold">+{formatNum(gains.gainedLines, false)}</span>
+            <span className="text-neon-300 font-bold">
+              +{formatNum(Math.round(animLines), false)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-dark-300">Money Earned</span>
-            <span className="text-neon-300 font-bold">+{formatMoney(gains.gainedMoney, false)}</span>
+            <span className="text-neon-300 font-bold">
+              +{formatMoney(animMoney, false)}
+            </span>
           </div>
         </div>
         <button

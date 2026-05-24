@@ -1,22 +1,33 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import type { GameState } from '../../types/game';
 import { formatNum, ascensionMult } from '../../utils/math';
 import { toNum, BN_ZERO } from '../../utils/BigNum';
+import { glowButton } from '../../utils/buttonGlow';
 
 interface Props {
   state: GameState;
   setState: (s: GameState) => void;
   addLog: (msg: string) => void;
   soundAscend?: () => void;
+  spawn?: (x: number, y: number, text?: string) => void;
+  spawnBurst?: (x: number, y: number, count?: number, texts?: string[]) => void;
 }
 
-export default function AscensionTab({ state, setState, addLog, soundAscend }: Props) {
+export default function AscensionTab({ state, setState, addLog, soundAscend, spawn, spawnBurst }: Props) {
   const [show, setShow] = useState(false);
   const s = state.useScientific;
   const newMult = ascensionMult(state.totalLinesEver);
   const canAscend = toNum(state.money) >= 1000000;
 
-  const ascend = () => {
+  const ascend = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    if (spawnBurst) {
+      const cx = e ? e.clientX : window.innerWidth / 2;
+      const cy = e ? e.clientY : window.innerHeight / 2;
+      spawnBurst(cx, cy, 16, ["+100", "ASCEND", "✨", "⬆", "★"]);
+    } else if (spawn) {
+      const cx = e ? e.clientX : window.innerWidth / 2;
+      spawn(cx, e ? e.clientY : window.innerHeight / 2, "✨");
+    }
     const next: GameState = {
       ...state,
       ascensionMultiplier: newMult,
@@ -53,7 +64,8 @@ export default function AscensionTab({ state, setState, addLog, soundAscend }: P
           <div className="flex justify-between"><span>New Multiplier</span><span className="text-neon-300">x{formatNum(newMult, s)}</span></div>
           <div className="flex justify-between"><span>Total Lines Ever</span><span className="text-neon-300">{formatNum(state.totalLinesEver, s)}</span></div>
         </div>
-        <button onClick={() => setShow(true)} disabled={!canAscend}
+        <button onClick={(e) => { glowButton(e.currentTarget); setShow(true); }} disabled={!canAscend}
+          data-action="preview-ascension"
           className="w-full py-3 rounded-lg border-2 border-neon-300 text-neon-300 font-bold text-xs hover:bg-neon-300/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer uppercase tracking-wider transition-all">
           Preview Ascension
         </button>
@@ -69,8 +81,8 @@ export default function AscensionTab({ state, setState, addLog, soundAscend }: P
               <div className="flex justify-between"><span>Bonus Mastery</span><span className="text-neon-300">{Math.floor(Math.sqrt(toNum(state.totalLinesEver) / 1000000))}</span></div>
             </div>
             <div className="flex gap-2">
-              <button onClick={ascend} className="flex-1 py-2.5 rounded border border-neon-300 text-neon-300 text-xs hover:bg-neon-300/10 cursor-pointer uppercase tracking-wider transition-all">Confirm</button>
-              <button onClick={() => setShow(false)} className="flex-1 py-2.5 rounded border border-dark-400 text-dark-200 text-xs hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">Cancel</button>
+              <button onClick={(e) => { glowButton(e.currentTarget); ascend(e); }} data-action="confirm-ascension" className="flex-1 py-2.5 rounded border border-neon-300 text-neon-300 text-xs hover:bg-neon-300/10 cursor-pointer uppercase tracking-wider transition-all">Confirm</button>
+              <button onClick={(e) => { glowButton(e.currentTarget); setShow(false); }} data-action="cancel-ascension" className="flex-1 py-2.5 rounded border border-dark-400 text-dark-200 text-xs hover:bg-dark-600/30 cursor-pointer uppercase tracking-wider transition-all">Cancel</button>
             </div>
           </div>
         </div>

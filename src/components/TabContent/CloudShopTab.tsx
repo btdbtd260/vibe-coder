@@ -1,6 +1,7 @@
 import type { GameState } from '../../types/game';
 import { useTooltip } from '../ui/TooltipManager';
 import { UPGRADE_LORE } from '../../data/tooltips';
+import { glowButton } from '../../utils/buttonGlow';
 
 interface Props {
   state: GameState;
@@ -64,8 +65,9 @@ function PremiumCard({ p, owned, canAfford, onBuy }: {
         <div className="text-[0.6rem] text-dark-300">{lore?.long?.slice(0, 80)}…</div>
         <div className="text-[0.6rem] text-neon-300">{owned ? 'OWNED' : `${p.cost} Shards`}</div>
       </div>
-      <button onClick={(e) => { e.stopPropagation(); onBuy(); }}
+      <button onClick={(e) => { e.stopPropagation(); glowButton(e.currentTarget); onBuy(); }}
         disabled={owned || !canAfford}
+        data-action={`buy-${p.key}`}
         className="text-[0.65rem] px-3 py-1.5 rounded border border-neon-300/40 text-neon-300 hover:bg-neon-300/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-all uppercase tracking-wider">
         {owned ? 'OWNED' : 'Buy'}
       </button>

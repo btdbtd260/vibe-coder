@@ -1,4 +1,5 @@
 import { Terminal, Cpu, Rocket, BarChart3, Cloud, Settings, BookOpen, Package, Bug, Crown } from 'lucide-react';
+import { glowButton } from '../utils/buttonGlow';
 
 const nav = [
   { id: 'terminal', label: 'Terminal', icon: Terminal },
@@ -23,13 +24,14 @@ export default function Sidebar({ activeTab, onTab }: { activeTab: string; onTab
       {nav.map(({ id, label, icon: Icon, dev }) => (
         <button
           key={id}
-          onClick={() => onTab(id)}
-          className={`flex items-center justify-center lg:justify-start gap-3 w-full px-3 py-2.5 rounded-lg text-xs transition-all duration-150 shrink-0
+          onClick={(e) => { glowButton(e.currentTarget); onTab(id); }}
+          data-action={`tab-${id}`}
+          className={`flex items-center justify-center lg:justify-start gap-3 w-full px-3 py-2.5 rounded-lg text-xs transition-all duration-150 shrink-0 border-l-2
             ${activeTab === id
-              ? 'bg-neon-300/10 text-neon-300 border border-neon-300/30'
+              ? 'bg-neon-300/10 text-neon-300 border border-neon-300/30 border-l-neon-300'
               : dev
-                ? 'text-red-500/60 hover:text-red-400 hover:bg-red-500/5 border border-transparent'
-                : 'text-dark-300 hover:text-dark-100 hover:bg-white/5 border border-transparent'}`}
+                ? 'text-red-500/60 hover:text-red-400 hover:bg-red-500/5 border border-transparent border-l-transparent'
+                : 'text-dark-300 hover:text-dark-100 hover:bg-white/5 border border-transparent border-l-transparent'}`}
         >
           <Icon size={18} />
           <span className="hidden lg:inline tracking-wider uppercase">{dev ? 'DEV' : label}</span>
